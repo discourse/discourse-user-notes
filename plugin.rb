@@ -275,34 +275,43 @@ after_initialize do
         { type: :text, properties: ["note"], title: I18n.t("reports.staff_notes.labels.note") }
       ]
 
-      values = []
-      report.timeout = wrap_slow_query do
-        values = PluginStoreRow
-          .where(plugin_name: 'staff_notes')
-          .where("value::json->0->>'created_at'>?", report.start_date)
-          .where("value::json->0->>'created_at'<?", report.end_date)
-          .order(id: :desc)
-          .pluck(:value)
-      end
+      sql = <<~SQL
+      WITH notes AS (
+      SELECT (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'user_id')::int AS user_id,
+      (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_by')::int AS staff_id,
+      u.username_lower AS staff_username,
+      value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'raw' AS note,
+      value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_at' AS created_at
+      FROM plugin_store_rows
+      JOIN users u
+      ON u.id = (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_by')::int
+      WHERE plugin_name = 'staff_notes'
+      AND u.id > 0
+      AND (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_at')::date >= '#{report.start_date}'
+      AND (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_at')::date <= '#{report.end_date}'
+      )
+      SELECT n.user_id,
+      u.username_lower,
+      n.staff_id,
+      n.staff_username,
+      n.created_at,
+      n.note
+      FROM notes n
+      JOIN users u
+      ON u.id = n.user_id
+      SQL
 
-      values.each do |value|
+      DB.query(sql).each do |row|
         data = {}
-        note = JSON.parse(value)[0]
-        created_at = Time.parse(note['created_at'])
-        user = User.find_by(id: note['user_id'])
-        moderator = User.find_by(id: note['created_by'])
-
-        if user && moderator
-          data[:created_at] = created_at
-          data[:user_id] = user.id
-          data[:user_url] = "/admin/users/#{user.id}/#{user.username_lower}"
-          data[:username] = user.username
-          data[:moderator_id] = moderator.id
-          data[:moderator_username] = moderator.username
-          data[:moderator_url] = "/admin/users/#{moderator.id}/#{moderator.username_lower}"
-          data[:note] = note['raw']
-          report.data << data
-        end
+        data[:created_at] = row.created_at
+        data[:user_id] = row.user_id
+        data[:username] = row.username_lower
+        data[:user_url] = "/admin/users/#{row.user_id}/#{row.username_lower}"
+        data[:moderator_id] = row.staff_id
+        data[:moderator_username] = row.staff_username
+        data[:moderator_url] = "/admin/users/#{row.staff_id}/#{row.staff_username}"
+        data[:note] = row.note
+        report.data << data
       end
     end
   end
