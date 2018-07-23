@@ -263,8 +263,8 @@ after_initialize do
     )
   end
 
-  if respond_to? :add_report
-    add_report('staff_notes') do |report|
+  if Report.respond_to? :add_report
+    Report.add_report('staff_notes') do |report|
       report.modes = [:table]
 
       report.data = []
@@ -286,7 +286,6 @@ after_initialize do
       JOIN users u
       ON u.id = (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_by')::int
       WHERE plugin_name = 'staff_notes'
-      AND u.id > 0
       AND (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_at')::date >= '#{report.start_date}'
       AND (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_at')::date <= '#{report.end_date}'
       )
