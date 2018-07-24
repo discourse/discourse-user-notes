@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Report do
   describe 'staff notes report' do
-    let(:report) { Report.find('staff_notes', start_date: 1.month.ago.beginning_of_day, end_date: Date.today.end_of_day) }
+    let(:report) { Report.find('staff_notes') }
     let(:user) { Fabricate(:user) }
     let(:mod) { Fabricate(:admin) }
     let(:first_topic) { Fabricate(:topic) }
