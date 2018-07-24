@@ -281,7 +281,7 @@ after_initialize do
       (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_by')::int AS staff_id,
       u.username_lower AS staff_username,
       value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'raw' AS note,
-      value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_at' AS created_at
+      (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_at')::date AS created_at
       FROM plugin_store_rows
       JOIN users u
       ON u.id = (value::jsonb->(jsonb_array_length(value::jsonb) - 1)->>'created_by')::int
@@ -298,6 +298,7 @@ after_initialize do
       FROM notes n
       JOIN users u
       ON u.id = n.user_id
+      ORDER BY n.created_at DESC
       SQL
 
       DB.query(sql).each do |row|
