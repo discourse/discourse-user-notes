@@ -4,11 +4,5 @@ export default Ember.Component.extend({
   tagName: "",
 
   @computed("count")
-  showCount: count => count && count > 0,
-
-  actions: {
-    show() {
-      this.sendAction("show");
-    }
-  }
+  showCount: count => count && count > 0
 });
