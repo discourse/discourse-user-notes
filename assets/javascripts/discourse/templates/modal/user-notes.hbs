@@ -1,6 +1,11 @@
 {{#d-modal-body class="user-notes-modal"}}
   {{textarea value=newNote}}
-  {{d-button action="attachNote" label="user_notes.attach" class="btn-primary" disabled=attachDisabled}}
+  {{d-button
+    action=(action "attachNote")
+    label="user_notes.attach"
+    class="btn-primary"
+    disabled=attachDisabled
+  }}
 
   {{#each model as |n|}}
     <div class='user-note'>
@@ -19,7 +24,8 @@
               {{d-button action=(action "removeNote" n)
                 icon="far-trash-alt"
                 class="btn-small btn-danger"
-                title="user_notes.remove"}}
+                title="user_notes.remove"
+              }}
             </span>
           {{/if}}
         </div>

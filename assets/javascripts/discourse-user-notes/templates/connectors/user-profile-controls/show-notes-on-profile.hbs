@@ -1,1 +1,6 @@
-<li>{{show-user-notes show="showUserNotes" count=userNotesCount}}</li>
+<li>
+  {{show-user-notes
+    show=(action "showUserNotes")
+    count=userNotesCount
+  }}
+</li>

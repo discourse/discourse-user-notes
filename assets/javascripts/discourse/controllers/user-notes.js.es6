@@ -20,31 +20,31 @@ export default Ember.Controller.extend({
   },
 
   _refreshCount() {
-    const callback = this.get("callback");
-    if (callback) {
-      callback(this.get("model.length"));
+    if (this.callback) {
+      this.callback(this.get("model.length"));
     }
   },
 
   actions: {
     attachNote() {
       const note = this.store.createRecord("user-note");
-      const userId = parseInt(this.get("userId"));
+      const userId = parseInt(this.userId);
 
       this.set("saving", true);
       let args = {
-        raw: this.get("newNote"),
+        raw: this.newNote,
         user_id: userId
       };
-      let postId = this.get("postId");
-      if (postId) {
-        args.post_id = parseInt(postId);
+
+      if (this.postId) {
+        args.post_id = parseInt(this.postId, 10);
       }
+
       note
         .save(args)
         .then(() => {
           this.set("newNote", "");
-          this.get("model").insertAt(0, note);
+          this.model.insertAt(0, note);
           this._refreshCount();
         })
         .catch(popupAjaxError)
@@ -61,8 +61,7 @@ export default Ember.Controller.extend({
             note
               .destroyRecord()
               .then(() => {
-                const notes = this.get("model");
-                notes.removeObject(note);
+                this.model.removeObject(note);
                 this._refreshCount();
               })
               .catch(popupAjaxError);

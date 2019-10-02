@@ -11,14 +11,15 @@ export default {
   setupComponent(args, component) {
     const { user } = args;
     const count =
-      user.get("user_notes_count") ||
-      user.get("custom_fields.user_notes_count") ||
-      0;
-    component.set("userNotesCount", count);
-    component.set("emojiEnabled", component.siteSettings.enable_emoji);
-    component.set("emojiUrl", emojiUrlFor("pencil"));
-    component.set("user", user);
-    component.set("userNotesTitle", I18n.t("user_notes.show", { count }));
+      user.user_notes_count || user.get("custom_fields.user_notes_count") || 0;
+
+    component.setProperties({
+      userNotesCount: count,
+      emojiEnabled: component.siteSettings.enable_emoji,
+      emojiUrl: emojiUrlFor("pencil"),
+      user,
+      userNotesTitle: I18n.t("user_notes.show", { count })
+    });
   },
 
   actions: {
@@ -26,7 +27,7 @@ export default {
       this.parentView.parentView._close();
       const store = getOwner(this).lookup("store:main");
       const user = this.get("args.user");
-      showUserNotes(store, user.get("id"), count => {
+      showUserNotes(store, user.id, count => {
         if (this.isDestroying || this.isDestroyed) {
           return;
         }

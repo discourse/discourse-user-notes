@@ -12,9 +12,13 @@ export function showUserNotes(store, userId, callback, opts) {
         addModalBodyView: true
       });
       controller.reset();
-      controller.set("userId", userId);
-      controller.set("callback", callback);
-      controller.set("postId", opts.postId);
+
+      controller.setProperties({
+        userId: userId,
+        callback: callback,
+        postId: opts.postId
+      });
+
       return controller;
     });
   });

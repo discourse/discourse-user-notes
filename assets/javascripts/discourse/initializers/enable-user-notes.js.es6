@@ -31,7 +31,7 @@ export default {
       }
 
       api.attachWidgetAction("post", "refreshUserNotes", function(count) {
-        const cfs = this.model.get("user_custom_fields") || {};
+        const cfs = this.model.user_custom_fields || {};
         cfs.user_notes_count = count;
         this.model.set("user_custom_fields", cfs);
       });
@@ -50,8 +50,7 @@ export default {
 
         actions: {
           showUserNotes() {
-            const user = this.get("model");
-            showUserNotes(store, user.get("id"), count =>
+            showUserNotes(store, this.model.id, count =>
               this.set("userNotesCount", count)
             );
           }

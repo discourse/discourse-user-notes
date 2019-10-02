@@ -11,9 +11,7 @@ export default {
     const { model } = args;
     component.set(
       "userNotesCount",
-      model.get("user_notes_count") ||
-        model.get("custom_fields.user_notes_count") ||
-        0
+      model.user_notes_count || model.get("custom_fields.user_notes_count") || 0
     );
   },
 
@@ -21,9 +19,7 @@ export default {
     showUserNotes() {
       const store = getOwner(this).lookup("store:main");
       const user = this.get("args.model");
-      showUserNotes(store, user.get("id"), count =>
-        this.set("userNotesCount", count)
-      );
+      showUserNotes(store, user.id, count => this.set("userNotesCount", count));
     }
   }
 };
