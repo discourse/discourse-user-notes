@@ -28,7 +28,7 @@ export default Ember.Controller.extend({
   actions: {
     attachNote() {
       const note = this.store.createRecord("user-note");
-      const userId = parseInt(this.userId);
+      const userId = parseInt(this.userId, 10);
 
       this.set("saving", true);
       let args = {
