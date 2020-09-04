@@ -1,6 +1,7 @@
+import I18n from "I18n";
 import {
   default as discourseComputed,
-  on
+  on,
 } from "discourse-common/utils/decorators";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import Controller from "@ember/controller";
@@ -34,7 +35,7 @@ export default Controller.extend({
       this.set("saving", true);
       let args = {
         raw: this.newNote,
-        user_id: userId
+        user_id: userId,
       };
 
       if (this.postId) {
@@ -57,7 +58,7 @@ export default Controller.extend({
         I18n.t("user_notes.delete_confirm"),
         I18n.t("no_value"),
         I18n.t("yes_value"),
-        result => {
+        (result) => {
           if (result) {
             note
               .destroyRecord()
@@ -69,6 +70,6 @@ export default Controller.extend({
           }
         }
       );
-    }
-  }
+    },
+  },
 });

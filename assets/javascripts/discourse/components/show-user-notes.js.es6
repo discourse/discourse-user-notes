@@ -4,5 +4,5 @@ import { computed } from "@ember/object";
 export default Component.extend({
   tagName: "",
 
-  showCount: computed.gt("count", 0)
+  showCount: computed.gt("count", 0),
 });

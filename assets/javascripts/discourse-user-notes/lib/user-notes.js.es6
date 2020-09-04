@@ -5,18 +5,18 @@ export function showUserNotes(store, userId, callback, opts) {
   opts = opts || {};
 
   return loadScript("defer/html-sanitizer-bundle").then(() => {
-    return store.find("user-note", { user_id: userId }).then(model => {
+    return store.find("user-note", { user_id: userId }).then((model) => {
       const controller = showModal("user-notes", {
         model,
         title: "user_notes.title",
-        addModalBodyView: true
+        addModalBodyView: true,
       });
       controller.reset();
 
       controller.setProperties({
         userId: userId,
         callback: callback,
-        postId: opts.postId
+        postId: opts.postId,
       });
 
       return controller;

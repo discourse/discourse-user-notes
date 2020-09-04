@@ -1,3 +1,4 @@
+import I18n from "I18n";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 import { getOwner } from "discourse-common/lib/get-owner";
 import { emojiUrlFor } from "discourse/lib/text";
@@ -18,7 +19,7 @@ export default {
       emojiEnabled: component.siteSettings.enable_emoji,
       emojiUrl: emojiUrlFor("pencil"),
       user,
-      userNotesTitle: I18n.t("user_notes.show", { count })
+      userNotesTitle: I18n.t("user_notes.show", { count }),
     });
   },
 
@@ -27,13 +28,13 @@ export default {
       this.parentView.parentView._close();
       const store = getOwner(this).lookup("store:main");
       const user = this.get("args.user");
-      showUserNotes(store, user.id, count => {
+      showUserNotes(store, user.id, (count) => {
         if (this.isDestroying || this.isDestroyed) {
           return;
         }
 
         this.set("userNotesCount", count);
       });
-    }
-  }
+    },
+  },
 };

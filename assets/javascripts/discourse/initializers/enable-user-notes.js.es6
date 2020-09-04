@@ -17,21 +17,21 @@ export default {
     }
 
     const store = container.lookup("store:main");
-    withPluginApi("0.8.15", api => {
+    withPluginApi("0.8.15", (api) => {
       function widgetshowUserNotes() {
         showUserNotes(
           store,
           this.attrs.user_id,
-          count => {
+          (count) => {
             this.sendWidgetAction("refreshUserNotes", count);
           },
           {
-            postId: this.attrs.id
+            postId: this.attrs.id,
           }
         );
       }
 
-      api.attachWidgetAction("post", "refreshUserNotes", function(count) {
+      api.attachWidgetAction("post", "refreshUserNotes", function (count) {
         const cfs = this.model.user_custom_fields || {};
         cfs.user_notes_count = count;
         this.model.set("user_custom_fields", cfs);
@@ -42,7 +42,7 @@ export default {
 
         @on("init")
         @observes("model")
-        _modelChanged: function() {
+        _modelChanged: function () {
           this.set(
             "userNotesCount",
             this.get("model.custom_fields.user_notes_count") || 0
@@ -51,16 +51,16 @@ export default {
 
         actions: {
           showUserNotes() {
-            showUserNotes(store, this.model.id, count =>
+            showUserNotes(store, this.model.id, (count) =>
               this.set("userNotesCount", count)
             );
-          }
-        }
+          },
+        },
       });
 
       const mobileView = api.container.lookup("site:main").mobileView;
       const loc = mobileView ? "before" : "after";
-      api.decorateWidget(`poster-name:${loc}`, dec => {
+      api.decorateWidget(`poster-name:${loc}`, (dec) => {
         if (dec.widget.settings.hideNotes) {
           return;
         }
@@ -71,7 +71,7 @@ export default {
         }
       });
 
-      api.decorateWidget(`post-avatar:after`, dec => {
+      api.decorateWidget(`post-avatar:after`, (dec) => {
         if (!dec.widget.settings.showNotes) {
           return;
         }
@@ -82,14 +82,14 @@ export default {
         }
       });
 
-      api.decorateWidget("post-admin-menu:after", dec => {
+      api.decorateWidget("post-admin-menu:after", (dec) => {
         return dec.h(
           "ul",
           dec.attach("post-admin-menu-button", {
             icon: "pencil-alt",
             label: "user_notes.attach",
             action: "showUserNotes",
-            secondaryAction: "closeAdminMenu"
+            secondaryAction: "closeAdminMenu",
           })
         );
       });
@@ -106,8 +106,8 @@ export default {
           } else {
             return iconNode("sticky-note");
           }
-        }
+        },
       });
     });
-  }
+  },
 };
