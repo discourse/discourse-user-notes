@@ -118,7 +118,7 @@ after_initialize do
         url = "/t/#{object[:post].topic_id}/#{object[:post].post_number}"
       end
 
-      "#{Discourse.base_uri}#{url}"
+      "#{Discourse.base_path}#{url}"
     end
 
     def post_title
