@@ -10,5 +10,6 @@ da:
       title: "Bruger noter"
       attach: "Tilføj bruger note"
       remove: "Fjern bruger note"
+      show: "User Notes (%{count})"
       delete_confirm: "Er du sikker på, at du vil slette den bruger note?"
       show_post: "Vis indlæg"

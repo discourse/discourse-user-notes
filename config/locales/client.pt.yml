@@ -7,4 +7,9 @@
 pt:
   js:
     user_notes:
+      title: "User Notes"
+      attach: "Add User Note"
+      remove: "Remove User Note"
+      show: "User Notes (%{count})"
+      delete_confirm: "Are you sure you want to delete that user note?"
       show_post: "Mostrar Publicação"

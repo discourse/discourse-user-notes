@@ -10,5 +10,6 @@ es:
       title: "Notas del usuario"
       attach: "Añadir nota de usuario"
       remove: "Quitar nota de usuario"
+      show: "User Notes (%{count})"
       delete_confirm: "¿Estás seguro de que deseas eliminar esta nota de usuario?"
       show_post: "Mostrar publicación"

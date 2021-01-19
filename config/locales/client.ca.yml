@@ -10,5 +10,6 @@ ca:
       title: "Notes d'usuari"
       attach: "Afegeix una nota d'usuari"
       remove: "Elimina la nota d'usuari"
+      show: "User Notes (%{count})"
       delete_confirm: "Esteu segur que voleu suprimir aquesta nota d'usuari?"
       show_post: "Mostra la publicació"

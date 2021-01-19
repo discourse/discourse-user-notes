@@ -7,12 +7,15 @@
 hu:
   site_settings:
     user_notes_enabled: "Megjegyzések hozzáadása a felhasználókhoz engedélyezése a személyzeti felhasználóknak"
+    user_notes_moderators_delete: "Allow moderators to delete user notes"
   user_notes:
     official_warning: "Hivatalos figyelmeztetést kaptál a következő felhasználótól @%{username} -- %{warning_link}"
     user_suspended: "@%{username} felfüggesztette ezt a fiókot a következő ideig, %{suspended_till}. Ok: %{reason}"
     user_silenced: "@%{username} elnémította ezt a fiókot a következő ideig, %{silenced_till}. Ok: %{reason}"
   reports:
     user_notes:
+      title: "User notes"
+      description: "List most recent user notes."
       labels:
         user: Felhasználó
         note: Megjegyzés

@@ -10,5 +10,6 @@ de:
       title: "Benutzer-Notizen"
       attach: "Benutzer Notiz hinzufügen"
       remove: "Entferne Benutzer-Notiz"
+      show: "User Notes (%{count})"
       delete_confirm: "Bist du sicher, dass du diese Benutzer-Notiz löschen möchtest?"
       show_post: "Beitrag anzeigen"

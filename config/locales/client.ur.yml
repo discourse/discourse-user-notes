@@ -10,5 +10,6 @@ ur:
       title: "صارف نوٹس"
       attach: "صارف نوٹ شامل کریں"
       remove: "صارف نوٹ ہٹائیں"
+      show: "User Notes (%{count})"
       delete_confirm: "کیا آپ واقعی وہ صارف نوٹ حذف کرنا چاہتے ہیں؟"
       show_post: "پوسٹ دکھائیں"
