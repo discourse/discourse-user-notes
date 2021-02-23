@@ -1,5 +1,7 @@
 ### discourse-user-notes
 
+https://meta.discourse.org/t/user-notes-plugin/41026/
+
 This plugin gives staff members the ability to attach notes to users.
 
 Whenever the user posts, a little note icon will appear beside their name if they have
