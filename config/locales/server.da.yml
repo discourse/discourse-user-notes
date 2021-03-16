@@ -9,14 +9,14 @@ da:
     user_notes_enabled: "Tillad hjælperteam brugere at vedhæfte noter til brugere"
     user_notes_moderators_delete: "Tillad moderatorer at slette bruger noter"
   user_notes:
-    official_warning: "Modtaget en officiel advarsel fra @ %{username} - %{warning_link}"
+    official_warning: "Modtog en officiel advarsel fra @ %{username} - %{warning_link}"
     user_suspended: "@ %{username} suspenderede denne konto indtil %{suspended_till}. Årsag: %{reason}"
-    user_silenced: "@ %{username} Mådeholdte (silenced) denne konto indtil %{silenced_till}. Årsag: %{reason}"
+    user_silenced: "@%{username} gjorde denne konto lydløs indtil %{silenced_till}. Årsag: %{reason}"
   reports:
     user_notes:
       title: "bruger noter"
       description: "Vis de seneste bruger noter."
       labels:
-        user: bruger
+        user: Bruger
         note: Note
         moderator: Moderator
