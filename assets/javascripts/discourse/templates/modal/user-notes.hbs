@@ -35,13 +35,9 @@
         </div>
 
         {{#if n.post_id}}
-          {{d-button 
-            class="btn btn-small" 
-            href=n.post_url
-            action=(route-action "closeModal") 
-            title="user_notes.show_post"
-            translatedLabel=(i18n "user_notes.show_post")
-          }}
+          <a href={{n.post_url}} class="btn btn-small">
+            {{i18n "user_notes.show_post"}}
+          </a>
         {{/if}}
       </div>
 

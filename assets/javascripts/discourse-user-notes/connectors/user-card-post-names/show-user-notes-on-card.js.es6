@@ -18,7 +18,6 @@ export default {
       userNotesCount: count,
       emojiEnabled: component.siteSettings.enable_emoji,
       emojiUrl: emojiUrlFor("pencil"),
-      user,
       userNotesTitle: I18n.t("user_notes.show", { count }),
     });
   },
