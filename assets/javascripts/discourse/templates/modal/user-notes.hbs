@@ -8,19 +8,19 @@
   }}
 
   {{#each model as |n|}}
-    <div class='user-note'>
-      <div class='posted-by'>
+    <div class="user-note">
+      <div class="posted-by">
         {{#user-link user=n.created_by}}
           {{avatar n.created_by imageSize="small"}}
         {{/user-link}}
       </div>
-      <div class='note-contents'>
-        <div class='note-info'>
-          <span class='username'>{{n.created_by.username}}</span>
-          <span class='post-date'>{{age-with-tooltip n.created_at}}</span>
+      <div class="note-contents">
+        <div class="note-info">
+          <span class="username">{{n.created_by.username}}</span>
+          <span class="post-date">{{age-with-tooltip n.created_at}}</span>
 
           {{#if n.can_delete}}
-            <span class='controls'>
+            <span class="controls">
               {{d-button action=(action "removeNote" n)
                 icon="far-trash-alt"
                 class="btn-small btn-danger"
@@ -30,7 +30,7 @@
           {{/if}}
         </div>
 
-        <div class='cooked'>
+        <div class="cooked">
           {{cook-text n.raw}}
         </div>
 
@@ -41,7 +41,7 @@
         {{/if}}
       </div>
 
-      <div class='clearfix'></div>
+      <div class="clearfix"></div>
     </div>
   {{/each}}
 {{/d-modal-body}}
