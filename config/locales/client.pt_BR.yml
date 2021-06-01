@@ -10,5 +10,6 @@ pt_BR:
       title: "Notas do usuário"
       attach: "Adicionar Anotação de Usuário"
       remove: "Remover anotação do usuário"
+      show: "Notas do usuário (%{count})"
       delete_confirm: "Tem certeza de que deseja excluir essa anotação de usuário?"
       show_post: "Mostrar Postagem"
