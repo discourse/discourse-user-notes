@@ -90,6 +90,7 @@ export default {
             label: "user_notes.attach",
             action: "showUserNotes",
             secondaryAction: "closeAdminMenu",
+            className: "add-user-note",
           })
         );
       });
