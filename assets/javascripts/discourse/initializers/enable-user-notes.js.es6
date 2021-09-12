@@ -3,6 +3,8 @@ import { iconNode } from "discourse-common/lib/icon-library";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 import { observes, on } from "discourse-common/utils/decorators";
 
+const PLUGIN_ID = "discourse-user-notes";
+
 export default {
   name: "enable-user-notes",
   initialize(container) {
@@ -38,6 +40,7 @@ export default {
       });
 
       api.modifyClass("controller:user", {
+        pluginId: PLUGIN_ID,
         userNotesCount: null,
 
         @on("init")
