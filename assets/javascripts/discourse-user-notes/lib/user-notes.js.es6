@@ -14,8 +14,8 @@ export function showUserNotes(store, userId, callback, opts) {
       controller.reset();
 
       controller.setProperties({
-        userId: userId,
-        callback: callback,
+        userId,
+        callback,
         postId: opts.postId,
       });
 
