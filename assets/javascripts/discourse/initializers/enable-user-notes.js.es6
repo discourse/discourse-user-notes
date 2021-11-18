@@ -18,7 +18,7 @@ export default {
       return;
     }
 
-    const store = container.lookup("store:main");
+    const store = container.lookup("service:store");
     withPluginApi("0.8.15", (api) => {
       function widgetshowUserNotes() {
         showUserNotes(

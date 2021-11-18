@@ -21,7 +21,7 @@ export default {
 
   actions: {
     showUserNotes() {
-      const store = getOwner(this).lookup("store:main");
+      const store = getOwner(this).lookup("service:store");
       const user = this.get("args.user");
       showUserNotes(store, user.id, (count) =>
         this.set("userNotesCount", count)

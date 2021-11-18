@@ -25,7 +25,7 @@ export default {
   actions: {
     showUserNotes() {
       this.parentView.parentView._close();
-      const store = getOwner(this).lookup("store:main");
+      const store = getOwner(this).lookup("service:store");
       const user = this.get("args.user");
       showUserNotes(store, user.id, (count) => {
         if (this.isDestroying || this.isDestroyed) {
