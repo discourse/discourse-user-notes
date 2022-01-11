@@ -7,8 +7,9 @@
 es:
   js:
     user_notes:
-      title: "Notas del usuario"
+      title: "Notas de usuario"
       attach: "Añadir nota de usuario"
-      remove: "Quitar nota de usuario"
-      delete_confirm: "¿Estás seguro de que deseas eliminar esta nota de usuario?"
+      remove: "Eliminar nota de usuario"
+      show: "Notas de usuario (%{count})"
+      delete_confirm: "¿Seguro que quieres eliminar este nota del usuario?"
       show_post: "Mostrar publicación"

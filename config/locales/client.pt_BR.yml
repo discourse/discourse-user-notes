@@ -7,9 +7,9 @@
 pt_BR:
   js:
     user_notes:
-      title: "Notas do usuário"
-      attach: "Adicionar Anotação de Usuário"
-      remove: "Remover anotação do usuário"
-      show: "Notas do usuário (%{count})"
-      delete_confirm: "Tem certeza de que deseja excluir essa anotação de usuário?"
+      title: "Anotações de usuário(a)"
+      attach: "Adicionar anotação de usuário(a)"
+      remove: "Remover anotação de usuário(a)"
+      show: "Anotações de usuário(a) (%{count})"
+      delete_confirm: "Tem certeza de que deseja excluir esta anotação de usuário(a)?"
       show_post: "Mostrar Postagem"

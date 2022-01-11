@@ -10,8 +10,8 @@ fr:
     user_notes_moderators_delete: "Permettre aux modérateurs de supprimer les notes d'utilisateur"
   user_notes:
     official_warning: "A reçu un avertissement officiel de @%{username} -- %{warning_link}"
-    user_suspended: "@%{username} a suspendu ce compte jusqu'à %{suspended_till}. Raison : %{reason}"
-    user_silenced: "@%{username} a mis sous silence ce compte jusqu'à %{silenced_till}. Raison : %{reason}"
+    user_suspended: "@%{username} a suspendu ce compte jusqu'au %{suspended_till}. Raison : %{reason}"
+    user_silenced: "@%{username} a mis ce compte en sourdine jusqu'au %{silenced_till}. Raison : %{reason}"
   reports:
     user_notes:
       title: "Notes d'utilisateur"
