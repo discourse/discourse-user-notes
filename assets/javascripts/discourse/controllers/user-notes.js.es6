@@ -1,10 +1,8 @@
 import I18n from "I18n";
-import {
-  default as discourseComputed,
-  on,
-} from "discourse-common/utils/decorators";
+import discourseComputed, { on } from "discourse-common/utils/decorators";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import Controller from "@ember/controller";
+import bootbox from "bootbox";
 
 export default Controller.extend({
   newNote: null,
