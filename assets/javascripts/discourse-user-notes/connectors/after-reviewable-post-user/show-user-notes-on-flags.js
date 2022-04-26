@@ -2,6 +2,7 @@ import I18n from "I18n";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 import { getOwner } from "discourse-common/lib/get-owner";
 import { emojiUrlFor } from "discourse/lib/text";
+import EmberObject from "@ember/object";
 
 export default {
   shouldRender(args, component) {
@@ -9,7 +10,7 @@ export default {
   },
 
   setupComponent(args, component) {
-    const model = args.user;
+    const model = EmberObject.create(args.user);
     const userNotesCount = model.get("custom_fields.user_notes_count") || 0;
     component.setProperties({
       userNotesCount,
