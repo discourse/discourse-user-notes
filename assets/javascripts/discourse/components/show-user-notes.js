@@ -1,8 +1,8 @@
 import Component from "@ember/component";
-import { computed } from "@ember/object";
+import { gt } from "@ember/object/computed";
 
 export default Component.extend({
   tagName: "",
 
-  showCount: computed.gt("count", 0),
+  showCount: gt("count", 0),
 });
