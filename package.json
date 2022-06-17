@@ -1,5 +1,10 @@
 {
-  "dependencies": {
-    "eslint-config-discourse": "^2.0.0"
+  "name": "discourse-user-notes",
+  "version": "0.0.2",
+  "repository": "https://github.com/discourse/discourse-user-notes",
+  "author": "Discourse",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint-config-discourse": "^3.2.0"
   }
 }
