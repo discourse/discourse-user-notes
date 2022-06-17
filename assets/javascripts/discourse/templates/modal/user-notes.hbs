@@ -21,7 +21,8 @@
 
           {{#if n.can_delete}}
             <span class="controls">
-              {{d-button action=(action "removeNote" n)
+              {{d-button
+                action=(action "removeNote" n)
                 icon="far-trash-alt"
                 class="btn-small btn-danger"
                 title="user_notes.remove"
