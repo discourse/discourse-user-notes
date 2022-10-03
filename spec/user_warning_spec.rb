@@ -8,7 +8,7 @@ describe UserWarning do
   let(:topic) { Fabricate(:topic) }
 
   describe 'when a user warning is created' do
-    context "staff notes plugin is enabled" do
+    context "when staff notes plugin is enabled" do
       before do
         SiteSetting.user_notes_enabled = true
       end

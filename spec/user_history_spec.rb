@@ -7,7 +7,7 @@ describe UserHistory do
   let(:admin) { Fabricate(:admin) }
 
   describe 'when a user suspension log is created' do
-    context "staff notes plugin is enabled" do
+    context "when staff notes plugin is enabled" do
       before do
         SiteSetting.user_notes_enabled = true
       end
