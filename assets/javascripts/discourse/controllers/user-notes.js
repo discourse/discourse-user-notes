@@ -2,9 +2,10 @@ import I18n from "I18n";
 import discourseComputed, { on } from "discourse-common/utils/decorators";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import Controller from "@ember/controller";
-import bootbox from "bootbox";
+import { inject as service } from "@ember/service";
 
 export default Controller.extend({
+  dialog: service(),
   newNote: null,
   saving: false,
   user: null,
@@ -52,22 +53,18 @@ export default Controller.extend({
     },
 
     removeNote(note) {
-      bootbox.confirm(
-        I18n.t("user_notes.delete_confirm"),
-        I18n.t("no_value"),
-        I18n.t("yes_value"),
-        (result) => {
-          if (result) {
-            note
-              .destroyRecord()
-              .then(() => {
-                this.model.removeObject(note);
-                this._refreshCount();
-              })
-              .catch(popupAjaxError);
-          }
-        }
-      );
+      this.dialog.deleteConfirm({
+        message: I18n.t("user_notes.delete_confirm"),
+        didConfirm: () => {
+          note
+            .destroyRecord()
+            .then(() => {
+              this.model.removeObject(note);
+              this._refreshCount();
+            })
+            .catch(popupAjaxError);
+        },
+      });
     },
   },
 });
