@@ -1,18 +1,18 @@
-{{#d-modal-body class="user-notes-modal"}}
-  {{textarea value=newNote}}
-  {{d-button
-    action=(action "attachNote")
-    label="user_notes.attach"
-    class="btn-primary"
-    disabled=attachDisabled
-  }}
+<DModalBody @class="user-notes-modal">
+  <Textarea @value={{this.newNote}} />
+  <DButton
+    @action={{action "attachNote"}}
+    @label="user_notes.attach"
+    @class="btn-primary"
+    @disabled={{this.attachDisabled}}
+  />
 
   {{#each model as |n|}}
     <div class="user-note">
       <div class="posted-by">
-        {{#user-link user=n.created_by}}
+        <UserLink @user={{n.created_by}}>
           {{avatar n.created_by imageSize="small"}}
-        {{/user-link}}
+        </UserLink>
       </div>
       <div class="note-contents">
         <div class="note-info">
@@ -21,12 +21,12 @@
 
           {{#if n.can_delete}}
             <span class="controls">
-              {{d-button
-                action=(action "removeNote" n)
-                icon="far-trash-alt"
-                class="btn-small btn-danger"
-                title="user_notes.remove"
-              }}
+              <DButton
+                @action={{action "removeNote" n}}
+                @icon="far-trash-alt"
+                @class="btn-small btn-danger"
+                @title="user_notes.remove"
+              />
             </span>
           {{/if}}
         </div>
@@ -45,4 +45,4 @@
       <div class="clearfix"></div>
     </div>
   {{/each}}
-{{/d-modal-body}}
+</DModalBody>

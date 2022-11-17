@@ -1,5 +1,5 @@
 {{#if userNotesCount}}
-  <a href {{action "showUserNotes"}} title={{userNotesTitle}}>
+  <DButton @class="btn btn-flat" @translatedTitle={{userNotesTitle}} @action={{action "showUserNotes"}}>
     {{#if emojiEnabled}}
       <img
         src={{emojiUrl}}
@@ -10,5 +10,5 @@
     {{else}}
       {{d-icon "sticky-note"}}
     {{/if}}
-  </a>
+  </DButton>
 {{/if}}

@@ -1,70 +1,74 @@
-import I18n from "I18n";
-import discourseComputed, { on } from "discourse-common/utils/decorators";
-import { popupAjaxError } from "discourse/lib/ajax-error";
 import Controller from "@ember/controller";
+import I18n from "I18n";
+import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
+import { popupAjaxError } from "discourse/lib/ajax-error";
+import { tracked } from "@glimmer/tracking";
 
-export default Controller.extend({
-  dialog: service(),
-  newNote: null,
-  saving: false,
-  user: null,
+export default class UserNotesController extends Controller {
+  @service dialog;
 
-  @on("init")
-  reset() {
-    this.setProperties({ newNote: null, saving: false, callback: null });
-  },
+  @tracked newNote;
+  @tracked userId;
+  @tracked saving = false;
 
-  @discourseComputed("newNote", "saving")
-  attachDisabled(newNote, saving) {
-    return saving || !newNote || newNote.length === 0;
-  },
-
-  _refreshCount() {
+  #refreshCount() {
     if (this.callback) {
-      this.callback(this.get("model.length"));
+      this.callback(this.model.length);
     }
-  },
+  }
 
-  actions: {
-    attachNote() {
-      const note = this.store.createRecord("user-note");
-      const userId = parseInt(this.userId, 10);
+  reset() {
+    this.newNote = null;
+    this.userId = null;
+    this.callback = null;
+    this.saving = false;
+  }
 
-      this.set("saving", true);
-      let args = {
-        raw: this.newNote,
-        user_id: userId,
-      };
+  get attachDisabled() {
+    return this.saving || !this.newNote || this.newNote.length === 0;
+  }
 
-      if (this.postId) {
-        args.post_id = parseInt(this.postId, 10);
-      }
+  @action
+  attachNote() {
+    const note = this.store.createRecord("user-note");
+    const userId = parseInt(this.userId, 10);
 
-      note
-        .save(args)
-        .then(() => {
-          this.set("newNote", "");
-          this.model.insertAt(0, note);
-          this._refreshCount();
-        })
-        .catch(popupAjaxError)
-        .finally(() => this.set("saving", false));
-    },
+    this.saving = true;
 
-    removeNote(note) {
-      this.dialog.deleteConfirm({
-        message: I18n.t("user_notes.delete_confirm"),
-        didConfirm: () => {
-          note
-            .destroyRecord()
-            .then(() => {
-              this.model.removeObject(note);
-              this._refreshCount();
-            })
-            .catch(popupAjaxError);
-        },
-      });
-    },
-  },
-});
+    const args = {
+      raw: this.newNote,
+      user_id: userId,
+    };
+
+    if (this.postId) {
+      args.post_id = parseInt(this.postId, 10);
+    }
+
+    note
+      .save(args)
+      .then(() => {
+        this.newNote = "";
+        this.model.insertAt(0, note);
+        this.#refreshCount();
+      })
+      .catch(popupAjaxError)
+      .finally(() => (this.saving = false));
+  }
+
+  @action
+  removeNote(note) {
+    this.dialog.deleteConfirm({
+      message: I18n.t("user_notes.delete_confirm"),
+      didConfirm: () => {
+        note
+          .destroyRecord()
+          .then(() => {
+            this.model.removeObject(note);
+            this.#refreshCount();
+          })
+          .catch(popupAjaxError);
+      },
+    });
+  }
+}

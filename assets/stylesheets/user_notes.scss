@@ -6,6 +6,18 @@
 
 .show-user-notes-on-flags {
   display: inline-block;
+
+  button {
+    display: inline;
+    padding: 0;
+  }
+}
+
+.show-user-notes-on-card {
+  button {
+    display: inline;
+    padding: 0;
+  }
 }
 
 .modal-body.user-notes-modal {
