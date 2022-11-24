@@ -1,7 +1,6 @@
 {{#if siteSettings.user_notes_enabled}}
-  {{admin-report
-    dataSourceName="user_notes"
-    startDate=lastWeek
-    endDate=endDate
-  }}
+  <AdminReport
+    @dataSourceName="user_notes"
+    @filters={{this.args.filters}}
+  />
 {{/if}}
