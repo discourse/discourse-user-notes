@@ -10,5 +10,6 @@ nl:
       title: "Gebruikersnotities"
       attach: "Gebruikersnotitie toevoegen"
       remove: "Gebruikersnotitie verwijderen"
-      delete_confirm: "Weet u zeker dat u die gebruikersnotitie wilt verwijderen?"
-      show_post: "Bericht tonen"
+      show: "Gebruikersnotities (%{count})"
+      delete_confirm: "Weet je zeker dat je die gebruikersnotitie wilt verwijderen?"
+      show_post: "Bericht weergeven"
