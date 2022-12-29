@@ -13,10 +13,10 @@ class AddUserNotesCountIndex < ActiveRecord::Migration[5.2]
     SQL
 
     add_index :user_custom_fields,
-      [:name, :user_id],
-      unique: true,
-      name: :idx_user_custom_fields_user_notes_count,
-      where: "name = 'user_notes_count'"
+              %i[name user_id],
+              unique: true,
+              name: :idx_user_custom_fields_user_notes_count,
+              where: "name = 'user_notes_count'"
   end
 
   def down

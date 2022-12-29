@@ -9,15 +9,14 @@
 
 enabled_site_setting :user_notes_enabled
 
-register_asset 'stylesheets/user_notes.scss'
+register_asset "stylesheets/user_notes.scss"
 
 register_svg_icon "sticky-note" if respond_to?(:register_svg_icon)
 
 COUNT_FIELD = "user_notes_count"
 
 after_initialize do
-
-  require_dependency 'user'
+  require_dependency "user"
 
   module ::DiscourseUserNotes
     class Engine < ::Rails::Engine
@@ -30,7 +29,7 @@ after_initialize do
     end
 
     def self.notes_for(user_id)
-      PluginStore.get('user_notes', key_for(user_id)) || []
+      PluginStore.get("user_notes", key_for(user_id)) || []
     end
 
     def self.add_note(user, raw, created_by, opts = nil)
@@ -42,7 +41,7 @@ after_initialize do
         user_id: user.id,
         raw: raw,
         created_by: created_by,
-        created_at: Time.now
+        created_at: Time.now,
       }.merge(opts)
 
       notes << record
@@ -66,10 +65,9 @@ after_initialize do
       user.custom_fields[COUNT_FIELD] = notes.size
       user.save_custom_fields
     end
-
   end
 
-  require_dependency 'application_serializer'
+  require_dependency "application_serializer"
   class ::UserNoteSerializer < ApplicationSerializer
     attributes(
       :id,
@@ -80,7 +78,7 @@ after_initialize do
       :can_delete,
       :post_id,
       :post_url,
-      :post_title
+      :post_title,
     )
 
     def id
@@ -115,9 +113,7 @@ after_initialize do
       url = object[:post].try(:url)
 
       # In case the topic is deleted
-      if url == "/404"
-        url = "/t/#{object[:post].topic_id}/#{object[:post].post_number}"
-      end
+      url = "/t/#{object[:post].topic_id}/#{object[:post].post_number}" if url == "/404"
 
       "#{Discourse.base_path}#{url}"
     end
@@ -131,7 +127,7 @@ after_initialize do
     end
   end
 
-  require_dependency 'application_controller'
+  require_dependency "application_controller"
   class DiscourseUserNotes::UserNotesController < ::ApplicationController
     before_action :ensure_logged_in
     before_action :ensure_staff
@@ -141,10 +137,7 @@ after_initialize do
       raise Discourse::NotFound if user.blank?
 
       notes = ::DiscourseUserNotes.notes_for(params[:user_id])
-      render json: {
-        extras: { username: user.username },
-        user_notes: create_json(notes.reverse)
-      }
+      render json: { extras: { username: user.username }, user_notes: create_json(notes.reverse) }
     end
 
     def create
@@ -155,12 +148,8 @@ after_initialize do
         extras[:post_id] = post_id
       end
 
-      user_note = ::DiscourseUserNotes.add_note(
-        user,
-        params[:user_note][:raw],
-        current_user.id,
-        extras
-      )
+      user_note =
+        ::DiscourseUserNotes.add_note(user, params[:user_note][:raw], current_user.id, extras)
 
       render json: create_json(user_note)
     end
@@ -182,12 +171,8 @@ after_initialize do
       if obj.is_a?(Array)
         users_by_id = {}
         posts_by_id = {}
-        User.where(id: obj.map { |o| o[:created_by] }).each do |u|
-          users_by_id[u.id] = u
-        end
-        Post.with_deleted.where(id: obj.map { |o| o[:post_id] }).each do |p|
-          posts_by_id[p.id] = p
-        end
+        User.where(id: obj.map { |o| o[:created_by] }).each { |u| users_by_id[u.id] = u }
+        Post.with_deleted.where(id: obj.map { |o| o[:post_id] }).each { |p| posts_by_id[p.id] = p }
         obj.each do |o|
           o[:created_by] = users_by_id[o[:created_by].to_i]
           o[:post] = posts_by_id[o[:post_id].to_i]
@@ -213,31 +198,34 @@ after_initialize do
   end
 
   add_to_serializer(:admin_detailed_user, :user_notes_count, false) do
-    object.custom_fields && object.custom_fields['user_notes_count'].to_i
+    object.custom_fields && object.custom_fields["user_notes_count"].to_i
   end
 
   DiscourseUserNotes::Engine.routes.draw do
-    get '/' => 'user_notes#index'
-    post '/' => 'user_notes#create'
-    delete '/:id' => 'user_notes#destroy'
+    get "/" => "user_notes#index"
+    post "/" => "user_notes#create"
+    delete "/:id" => "user_notes#destroy"
   end
 
-  Discourse::Application.routes.append do
-    mount ::DiscourseUserNotes::Engine, at: "/user_notes"
-  end
+  Discourse::Application.routes.append { mount ::DiscourseUserNotes::Engine, at: "/user_notes" }
 
   add_model_callback(UserWarning, :after_commit, on: :create) do
     user = User.find_by_id(self.user_id)
     created_by_user = User.find_by_id(self.created_by_id)
     warning_topic = Topic.find_by_id(self.topic_id)
-    raw_note = I18n.with_locale(SiteSetting.default_locale) do
-      I18n.t("user_notes.official_warning", username: created_by_user.username, warning_link: "[#{warning_topic.title}](#{warning_topic.url})")
-    end
+    raw_note =
+      I18n.with_locale(SiteSetting.default_locale) do
+        I18n.t(
+          "user_notes.official_warning",
+          username: created_by_user.username,
+          warning_link: "[#{warning_topic.title}](#{warning_topic.url})",
+        )
+      end
     ::DiscourseUserNotes.add_note(
       user,
       raw_note,
       Discourse::SYSTEM_USER_ID,
-      topic_id: self.topic_id
+      topic_id: self.topic_id,
     )
   end
 
@@ -245,46 +233,44 @@ after_initialize do
     return unless self.action == UserHistory.actions[:suspend_user]
     target_user = User.find_by_id(self.target_user_id)
     created_by_user = User.find_by_id(self.acting_user_id)
-    raw_note = I18n.with_locale(SiteSetting.default_locale) do
-      I18n.t("user_notes.user_suspended",
-        username: created_by_user.username,
-        suspended_till: I18n.l(target_user.suspended_till, format: :date_only),
-        reason: self.details
-      )
-    end
+    raw_note =
+      I18n.with_locale(SiteSetting.default_locale) do
+        I18n.t(
+          "user_notes.user_suspended",
+          username: created_by_user.username,
+          suspended_till: I18n.l(target_user.suspended_till, format: :date_only),
+          reason: self.details,
+        )
+      end
     ::DiscourseUserNotes.add_note(
       target_user,
       raw_note,
       Discourse::SYSTEM_USER_ID,
       post_id: self.post_id,
-      topic_id: self.topic_id
+      topic_id: self.topic_id,
     )
   end
 
   on(:user_silenced) do |details|
-    raw_note = I18n.with_locale(SiteSetting.default_locale) do
-      I18n.t(
-        "user_notes.user_silenced",
-        username: details[:silenced_by]&.username || '',
-        silenced_till: I18n.l(details[:silenced_till], format: :date_only),
-        reason: details[:reason]
-      )
-    end
+    raw_note =
+      I18n.with_locale(SiteSetting.default_locale) do
+        I18n.t(
+          "user_notes.user_silenced",
+          username: details[:silenced_by]&.username || "",
+          silenced_till: I18n.l(details[:silenced_till], format: :date_only),
+          reason: details[:reason],
+        )
+      end
     note_args = {}
     if post = Post.with_deleted.where(id: details[:post_id]).first
       note_args = { post_id: post.id, topic_id: post.topic_id }
     end
 
-    ::DiscourseUserNotes.add_note(
-      details[:user],
-      raw_note,
-      Discourse::SYSTEM_USER_ID,
-      note_args
-    )
+    ::DiscourseUserNotes.add_note(details[:user], raw_note, Discourse::SYSTEM_USER_ID, note_args)
   end
 
   if respond_to? :add_report
-    add_report('user_notes') do |report|
+    add_report("user_notes") do |report|
       report.modes = [:table]
 
       report.data = []
@@ -297,7 +283,7 @@ after_initialize do
             id: :user_id,
             avatar: :user_avatar_template,
           },
-          title: I18n.t("reports.user_notes.labels.user")
+          title: I18n.t("reports.user_notes.labels.user"),
         },
         {
           type: :user,
@@ -306,34 +292,42 @@ after_initialize do
             id: :moderator_id,
             avatar: :moderator_avatar_template,
           },
-          title: I18n.t("reports.user_notes.labels.moderator")
+          title: I18n.t("reports.user_notes.labels.moderator"),
         },
-        { type: :text, property: :note, title: I18n.t("reports.user_notes.labels.note") }
+        { type: :text, property: :note, title: I18n.t("reports.user_notes.labels.note") },
       ]
 
       values = []
-      values = PluginStoreRow.where(plugin_name: 'user_notes')
-        .where("value::json->0->>'created_at'>=?", report.start_date)
-        .where("value::json->0->>'created_at'<=?", report.end_date)
-        .pluck(:value)
+      values =
+        PluginStoreRow
+          .where(plugin_name: "user_notes")
+          .where("value::json->0->>'created_at'>=?", report.start_date)
+          .where("value::json->0->>'created_at'<=?", report.end_date)
+          .pluck(:value)
 
       values.each do |value|
         notes = JSON.parse(value)
         notes.each do |note|
           data = {}
-          created_at = Time.parse(note['created_at'])
-          user = User.find_by(id: note['user_id'])
-          moderator = User.find_by(id: note['created_by'])
+          created_at = Time.parse(note["created_at"])
+          user = User.find_by(id: note["user_id"])
+          moderator = User.find_by(id: note["created_by"])
 
           if user && moderator
             data[:created_at] = created_at
             data[:user_id] = user.id
             data[:username] = user.username_lower
-            data[:user_avatar_template] = User.avatar_template(user.username_lower, user.uploaded_avatar_id)
+            data[:user_avatar_template] = User.avatar_template(
+              user.username_lower,
+              user.uploaded_avatar_id,
+            )
             data[:moderator_id] = moderator.id
             data[:moderator_username] = moderator.username_lower
-            data[:moderator_avatar_template] = User.avatar_template(moderator.username_lower, moderator.uploaded_avatar_id)
-            data[:note] = note['raw']
+            data[:moderator_avatar_template] = User.avatar_template(
+              moderator.username_lower,
+              moderator.uploaded_avatar_id,
+            )
+            data[:note] = note["raw"]
 
             report.data << data
           end

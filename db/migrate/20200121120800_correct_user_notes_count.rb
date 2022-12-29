@@ -23,7 +23,6 @@ class CorrectUserNotesCount < ActiveRecord::Migration[5.2]
       ON CONFLICT (name, user_id) WHERE name::text = 'user_notes_count'::text
       DO NOTHING
     SQL
-
   end
 
   def down
