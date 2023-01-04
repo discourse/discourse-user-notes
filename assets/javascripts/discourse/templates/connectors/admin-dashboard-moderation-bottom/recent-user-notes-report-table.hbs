@@ -1,6 +1,3 @@
 {{#if siteSettings.user_notes_enabled}}
-  <AdminReport
-    @dataSourceName="user_notes"
-    @filters={{this.args.filters}}
-  />
+  <AdminReport @dataSourceName="user_notes" @filters={{this.filters}} />
 {{/if}}

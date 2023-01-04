@@ -1,12 +1,16 @@
 {{#if userNotesCount}}
-  <DButton @class="btn btn-flat" @translatedTitle={{userNotesTitle}} @action={{action "showUserNotes"}}>
+  <DButton
+    @class="btn btn-flat"
+    @translatedTitle={{userNotesTitle}}
+    @action={{action "showUserNotes"}}
+  >
     {{#if emojiEnabled}}
       <img
         src={{emojiUrl}}
         title={{userNotesTitle}}
         alt="pencil"
         class="emoji"
-      >
+      />
     {{else}}
       {{d-icon "sticky-note"}}
     {{/if}}
