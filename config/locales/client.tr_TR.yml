@@ -9,7 +9,7 @@ tr_TR:
     user_notes:
       title: "Kullanıcı Notları"
       attach: "Kullanıcı Notu Ekle"
-      remove: "Kullanıcı Notu Sil"
+      remove: "Kullanıcı Notunu Kaldır"
       show: "Kullanıcı Notları (%{count})"
-      delete_confirm: "Bu kullanıcı notunu silmek istediğine emin misin?"
+      delete_confirm: "Bu kullanıcı notunu silmek istediğinizden emin misiniz?"
       show_post: "Gönderiyi Göster"
