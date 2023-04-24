@@ -85,7 +85,7 @@ after_initialize do
     (SiteSetting.user_notes_moderators_delete? && user.staff?) || user.admin?
   end
 
-  add_to_serializer(:admin_detailed_user, :user_notes_count, false) do
+  add_to_serializer(:admin_detailed_user, :user_notes_count) do
     object.custom_fields && object.custom_fields["user_notes_count"].to_i
   end
 
