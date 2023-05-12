@@ -17,7 +17,7 @@ after_initialize do
   require_dependency "user"
 
   module ::DiscourseUserNotes
-    PLUGIN_NAME = "discourse_user_notes"
+    PLUGIN_NAME = "discourse-user-notes"
     COUNT_FIELD = "user_notes_count"
 
     class Engine < ::Rails::Engine
