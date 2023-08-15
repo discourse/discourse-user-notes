@@ -32,7 +32,7 @@
         </div>
 
         <div class="cooked">
-          {{cook-text n.raw}}
+          <CookText @rawText={{n.raw}} />
         </div>
 
         {{#if n.post_id}}
