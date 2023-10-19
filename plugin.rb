@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 # name: discourse-user-notes
-# about: Gives the ability for staff members to attach notes to users
+# about: Provides staff the ability to share notes with other staff about a user.
+# meta_topic_id: 41026
 # version: 0.0.2
 # authors: Robin Ward
 # url: https://github.com/discourse/discourse-user-notes
