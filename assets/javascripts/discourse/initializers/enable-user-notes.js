@@ -86,15 +86,19 @@ export default {
         }
       });
       api.addPostAdminMenuButton((attrs) => {
-        const action = () => {
-          showUserNotes(store, attrs.user_id, (count) => {
-            userController.set("userNotesCount", count);
-          });
-        };
         return {
           icon: "pencil-alt",
           label: "user_notes.attach",
-          action,
+          action: () => {
+            showUserNotes(
+              store,
+              attrs.user_id,
+              (count) => {
+                userController.set("userNotesCount", count);
+              },
+              { postId: attrs.id }
+            );
+          },
           secondaryAction: "closeAdminMenu",
           className: "add-user-note",
         };
