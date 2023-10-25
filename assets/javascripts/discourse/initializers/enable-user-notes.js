@@ -10,6 +10,7 @@ export default {
   initialize(container) {
     const siteSettings = container.lookup("site-settings:main");
     const currentUser = container.lookup("current-user:main");
+    const userController = container.lookup("controller:user");
     if (
       !siteSettings.user_notes_enabled ||
       !currentUser ||
@@ -84,18 +85,19 @@ export default {
           return dec.attach("user-notes-icon");
         }
       });
-
-      api.decorateWidget("post-admin-menu:after", (dec) => {
-        return dec.h(
-          "ul",
-          dec.attach("post-admin-menu-button", {
-            icon: "pencil-alt",
-            label: "user_notes.attach",
-            action: "showUserNotes",
-            secondaryAction: "closeAdminMenu",
-            className: "add-user-note",
-          })
-        );
+      api.addPostAdminMenuButton((attrs) => {
+        const action = () => {
+          showUserNotes(store, attrs.user_id, (count) => {
+            userController.set("userNotesCount", count);
+          });
+        };
+        return {
+          icon: "pencil-alt",
+          label: "user_notes.attach",
+          action,
+          secondaryAction: "closeAdminMenu",
+          className: "add-user-note",
+        };
       });
 
       api.attachWidgetAction("post", "showUserNotes", widgetshowUserNotes);
