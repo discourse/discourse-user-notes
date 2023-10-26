@@ -11,6 +11,7 @@ export default {
   initialize(container) {
     const siteSettings = container.lookup("site-settings:main");
     const currentUser = container.lookup("current-user:main");
+    const appEvents = container.lookup("service:app-events");
 
     if (
       !siteSettings.user_notes_enabled ||
@@ -100,20 +101,21 @@ export default {
         return {
           icon: "pencil-alt",
           label: "user_notes.attach",
-          action: async (post) => {
-            await new Promise((resolve) => {
-              showUserNotes(
-                store,
-                attrs.user_id,
-                (count) => {
-                  const ucf = post.user_custom_fields || {};
-                  ucf.user_notes_count = count;
-                  post.set("user_custom_fields", ucf);
-                  resolve();
-                },
-                { postId: attrs.id }
-              );
-            });
+          action: (post) => {
+            showUserNotes(
+              store,
+              attrs.user_id,
+              (count) => {
+                const ucf = post.user_custom_fields || {};
+                ucf.user_notes_count = count;
+                post.set("user_custom_fields", ucf);
+
+                appEvents.trigger("post-stream:refresh", {
+                  id: post.id,
+                });
+              },
+              { postId: attrs.id }
+            );
           },
           secondaryAction: "closeAdminMenu",
           className: "add-user-note",
