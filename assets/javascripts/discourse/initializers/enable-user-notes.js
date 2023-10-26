@@ -69,8 +69,13 @@ export default {
           return;
         }
 
-        const cfs = dec.attrs.userCustomFields || {};
-        if (cfs.user_notes_count > 0) {
+        const post = dec.getModel();
+        if (!post) {
+          return;
+        }
+
+        const ucf = post.user_custom_fields || {};
+        if (ucf.user_notes_count > 0) {
           return dec.attach("user-notes-icon");
         }
       });
@@ -80,8 +85,13 @@ export default {
           return;
         }
 
-        const cfs = dec.attrs.userCustomFields || {};
-        if (cfs.user_notes_count > 0) {
+        const post = dec.getModel();
+        if (!post) {
+          return;
+        }
+
+        const ucf = post.user_custom_fields || {};
+        if (ucf.user_notes_count > 0) {
           return dec.attach("user-notes-icon");
         }
       });
@@ -89,15 +99,20 @@ export default {
         return {
           icon: "pencil-alt",
           label: "user_notes.attach",
-          action: () => {
-            showUserNotes(
-              store,
-              attrs.user_id,
-              (count) => {
-                userController.set("userNotesCount", count);
-              },
-              { postId: attrs.id }
-            );
+          action: async (post) => {
+            await new Promise((resolve, reject) => {
+              showUserNotes(
+                store,
+                attrs.user_id,
+                (count) => {
+                  const ucf = post.user_custom_fields || {};
+                  ucf.user_notes_count = count;
+                  post.set("user_custom_fields", ucf);
+                  resolve();
+                },
+                { postId: attrs.id }
+              );
+            });
           },
           secondaryAction: "closeAdminMenu",
           className: "add-user-note",
