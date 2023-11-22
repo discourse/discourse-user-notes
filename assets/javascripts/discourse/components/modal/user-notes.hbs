@@ -1,13 +1,17 @@
-<DModalBody @class="user-notes-modal">
+<DModal
+  @closeModal={{@closeModal}}
+  @title={{i18n "user_notes.title"}}
+  class="user-notes-modal"
+>
   <Textarea @value={{this.newNote}} />
   <DButton
-    @action={{action "attachNote"}}
+    @action={{this.attachNote}}
     @label="user_notes.attach"
     @class="btn-primary"
     @disabled={{this.attachDisabled}}
   />
 
-  {{#each model as |n|}}
+  {{#each @model.note as |n|}}
     <div class="user-note">
       <div class="posted-by">
         <UserLink @user={{n.created_by}}>
@@ -22,7 +26,7 @@
           {{#if n.can_delete}}
             <span class="controls">
               <DButton
-                @action={{action "removeNote" n}}
+                @action={{(fn this.removeNote n)}}
                 @icon="far-trash-alt"
                 @class="btn-small btn-danger"
                 @title="user_notes.remove"
@@ -45,4 +49,4 @@
       <div class="clearfix"></div>
     </div>
   {{/each}}
-</DModalBody>
+</DModal>

@@ -1,22 +1,18 @@
-import showModal from "discourse/lib/show-modal";
+import UserNotesModal from "../../discourse/components/modal/user-notes";
+import { getOwner } from "discourse-common/lib/get-owner";
 
 export function showUserNotes(store, userId, callback, opts) {
+  const modal = getOwner(this).lookup("service:modal");
   opts = opts || {};
 
   return store.find("user-note", { user_id: userId }).then((model) => {
-    const controller = showModal("user-notes", {
-      model,
-      title: "user_notes.title",
-      addModalBodyView: true,
+    return modal.show(UserNotesModal, {
+      model: {
+        note: model,
+        userId,
+        callback,
+        postId: opts.postId,
+      },
     });
-    controller.reset();
-
-    controller.setProperties({
-      userId,
-      callback,
-      postId: opts.postId,
-    });
-
-    return controller;
   });
 }

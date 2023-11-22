@@ -1,28 +1,30 @@
-import Controller from "@ember/controller";
+import Component from "@glimmer/component";
 import I18n from "I18n";
 import { action } from "@ember/object";
 import { inject as service } from "@ember/service";
 import { popupAjaxError } from "discourse/lib/ajax-error";
 import { tracked } from "@glimmer/tracking";
 
-export default class UserNotesController extends Controller {
+export default class UserNotesModal extends Component {
   @service dialog;
+  @service store;
 
   @tracked newNote;
   @tracked userId;
   @tracked saving = false;
+  postId;
+  callback;
 
+  constructor() {
+    super(...arguments);
+    this.userId = this.args.model.userId;
+    this.callback = this.args.model.callback;
+    this.postId = this.args.model.postId;
+  }
   #refreshCount() {
     if (this.callback) {
-      this.callback(this.model.length);
+      this.callback(this.args.model.note.length);
     }
-  }
-
-  reset() {
-    this.newNote = null;
-    this.userId = null;
-    this.callback = null;
-    this.saving = false;
   }
 
   get attachDisabled() {
@@ -30,7 +32,7 @@ export default class UserNotesController extends Controller {
   }
 
   @action
-  attachNote() {
+  async attachNote() {
     const note = this.store.createRecord("user-note");
     const userId = parseInt(this.userId, 10);
 
@@ -45,15 +47,16 @@ export default class UserNotesController extends Controller {
       args.post_id = parseInt(this.postId, 10);
     }
 
-    note
-      .save(args)
-      .then(() => {
-        this.newNote = "";
-        this.model.insertAt(0, note);
-        this.#refreshCount();
-      })
-      .catch(popupAjaxError)
-      .finally(() => (this.saving = false));
+    try {
+      await note.save(args);
+      this.newNote = "";
+      this.args.model.note.insertAt(0, note);
+      this.#refreshCount();
+    } catch (error) {
+      popupAjaxError(error);
+    } finally {
+      this.saving = false;
+    }
   }
 
   @action
@@ -64,7 +67,7 @@ export default class UserNotesController extends Controller {
         note
           .destroyRecord()
           .then(() => {
-            this.model.removeObject(note);
+            this.args.model.note.removeObject(note);
             this.#refreshCount();
           })
           .catch(popupAjaxError);
