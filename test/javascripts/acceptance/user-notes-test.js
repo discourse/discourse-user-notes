@@ -41,22 +41,25 @@ acceptance("User Notes", function (needs) {
   test("creates note from user's profile", async function (assert) {
     await visit("/admin/users/1/eviltrout");
 
-    assert.dom(".user-controls button").hasText(I18n.t("user_notes.title"));
-    assert.dom(".user-notes-modal.modal-body").isNotVisible();
+    const modalClass = ".user-notes-modal .d-modal__container";
+    assert
+      .dom(".user-controls .show-user-notes-btn")
+      .hasText(I18n.t("user_notes.title"));
+    assert.dom(modalClass).isNotVisible();
 
-    await click(".user-controls button");
+    await click(".user-controls .show-user-notes-btn");
 
-    assert.dom(".user-notes-modal.modal-body").isVisible();
+    assert.dom(modalClass).isVisible();
 
-    await fillIn(".user-notes-modal textarea", "Helpful user");
+    await fillIn(`${modalClass} textarea`, "Helpful user");
 
-    assert.dom(".user-notes-modal.modal-body button").isEnabled();
+    assert.dom(`${modalClass} .btn-primary`).isEnabled();
 
-    await click(".user-notes-modal.modal-body button");
-    await click(".user-notes-modal button.modal-close");
+    await click(`${modalClass} .btn-primary`);
+    await click(`${modalClass} .modal-close`);
 
     assert
-      .dom(".user-controls button")
+      .dom(".user-controls .show-user-notes-btn")
       .hasText(I18n.t("user_notes.show", { count: 1 }));
   });
 });
