@@ -41,15 +41,15 @@ acceptance("User Notes", function (needs) {
   test("creates note from user's profile", async function (assert) {
     await visit("/admin/users/1/eviltrout");
 
-    const modalClass = ".user-notes-modal .d-modal__container";
+    const modalClass = ".user-notes-modal";
     assert
       .dom(".user-controls .show-user-notes-btn")
       .hasText(I18n.t("user_notes.title"));
-    assert.dom(modalClass).isNotVisible();
+    assert.dom(modalClass).doesNotExist();
 
     await click(".user-controls .show-user-notes-btn");
 
-    assert.dom(modalClass).isVisible();
+    assert.dom(modalClass).exists();
 
     await fillIn(`${modalClass} textarea`, "Helpful user");
 

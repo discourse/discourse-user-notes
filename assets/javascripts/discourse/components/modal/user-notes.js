@@ -10,17 +10,11 @@ export default class UserNotesModal extends Component {
   @service store;
 
   @tracked newNote;
-  @tracked userId;
+  @tracked userId = this.args.model.userId;
   @tracked saving = false;
-  postId;
-  callback;
+  postId = this.args.model.postId;
+  callback = this.args.model.callback;
 
-  constructor() {
-    super(...arguments);
-    this.userId = this.args.model.userId;
-    this.callback = this.args.model.callback;
-    this.postId = this.args.model.postId;
-  }
   #refreshCount() {
     if (this.callback) {
       this.callback(this.args.model.note.length);
