@@ -8,23 +8,20 @@ const PLUGIN_ID = "discourse-user-notes";
 export default {
   name: "enable-user-notes",
   initialize(container) {
-    const siteSettings = container.lookup("site-settings:main");
-    const currentUser = container.lookup("current-user:main");
+    const siteSettings = container.lookup("service:site-settings");
+    const currentUser = container.lookup("service:current-user");
     const appEvents = container.lookup("service:app-events");
 
-    if (
-      !siteSettings.user_notes_enabled ||
-      !currentUser ||
-      !currentUser.staff
-    ) {
+    if (!siteSettings.user_notes_enabled || !currentUser?.staff) {
       return;
     }
 
     const store = container.lookup("service:store");
+
     withPluginApi("0.8.15", (api) => {
-      function widgetshowUserNotes() {
+      function widgetShowUserNotes() {
         showUserNotes(
-          store,
+          this.store,
           this.attrs.user_id,
           (count) => {
             this.sendWidgetAction("refreshUserNotes", count);
@@ -63,7 +60,7 @@ export default {
         },
       });
 
-      const mobileView = api.container.lookup("site:main").mobileView;
+      const mobileView = api.container.lookup("service:site").mobileView;
       const loc = mobileView ? "before" : "after";
       api.decorateWidget(`poster-name:${loc}`, (dec) => {
         if (dec.widget.settings.hideNotes) {
@@ -121,14 +118,16 @@ export default {
         };
       });
 
-      api.attachWidgetAction("post", "showUserNotes", widgetshowUserNotes);
+      api.attachWidgetAction("post", "showUserNotes", widgetShowUserNotes);
 
       api.createWidget("user-notes-icon", {
+        services: ["site-settings"],
+
         tagName: "span.user-notes-icon",
-        click: widgetshowUserNotes,
+        click: widgetShowUserNotes,
 
         html() {
-          if (siteSettings.enable_emoji) {
+          if (this.siteSettings.enable_emoji) {
             return this.attach("emoji", { name: "pencil" });
           } else {
             return iconNode("sticky-note");
