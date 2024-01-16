@@ -6,7 +6,6 @@
 # version: 0.0.2
 # authors: Robin Ward
 # url: https://github.com/discourse/discourse-user-notes
-# transpile_js: true
 
 enabled_site_setting :user_notes_enabled
 

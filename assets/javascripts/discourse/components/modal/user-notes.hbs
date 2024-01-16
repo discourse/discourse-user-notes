@@ -7,8 +7,8 @@
   <DButton
     @action={{this.attachNote}}
     @label="user_notes.attach"
-    @class="btn-primary"
     @disabled={{this.attachDisabled}}
+    class="btn-primary"
   />
 
   {{#each @model.note as |n|}}
@@ -28,8 +28,8 @@
               <DButton
                 @action={{fn this.removeNote n}}
                 @icon="far-trash-alt"
-                @class="btn-small btn-danger"
                 @title="user_notes.remove"
+                class="btn-small btn-danger"
               />
             </span>
           {{/if}}

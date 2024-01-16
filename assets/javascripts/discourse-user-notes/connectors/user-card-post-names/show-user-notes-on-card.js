@@ -1,7 +1,7 @@
+import { emojiUrlFor } from "discourse/lib/text";
+import { getOwner } from "discourse-common/lib/get-owner";
 import I18n from "I18n";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
-import { getOwner } from "discourse-common/lib/get-owner";
-import { emojiUrlFor } from "discourse/lib/text";
 
 export default {
   shouldRender(args, component) {
