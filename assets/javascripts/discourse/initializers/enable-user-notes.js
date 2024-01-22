@@ -118,6 +118,13 @@ export default {
         };
       });
 
+      // decorate participant lists
+      api.addTopicParticipantClassesCallback((attrs) => {
+        if (attrs) {
+          return ["g-plane", "g-song"];
+        }
+      });
+
       api.attachWidgetAction("post", "showUserNotes", widgetShowUserNotes);
 
       api.createWidget("user-notes-icon", {
