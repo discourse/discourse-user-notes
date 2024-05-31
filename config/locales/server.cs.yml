@@ -15,4 +15,5 @@ cs:
     user_notes:
       labels:
         user: Uživatel
+        note: Poznámka
         moderator: Moderátor
