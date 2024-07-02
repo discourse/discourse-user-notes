@@ -28,13 +28,7 @@ export default class extends Component {
 
   @action
   showUserNotes() {
-    showUserNotes(this.store, this.args.outletArgs.user.id, (count) => {
-      if (this.isDestroying || this.isDestroyed) {
-        return;
-      }
-
-      this.set("userNotesCount", count);
-    });
+    showUserNotes(this.store, this.args.outletArgs.user.id);
   }
 
   <template>
