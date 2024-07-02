@@ -40,7 +40,7 @@ export default class extends Component {
             count=this.userNotesCount
           }}
           @action={{this.showUserNotes}}
-          class="btn btn-flat"
+          class="btn-flat"
         >
           {{#if this.siteSettings.enable_emoji}}
             <img src={{emojiUrlFor "pencil"}} alt="pencil" class="emoji" />
