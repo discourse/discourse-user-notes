@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
-import { emojiUrlFor } from "discourse/lib/text";
+import emoji from "discourse/helpers/emoji";
 import icon from "discourse-common/helpers/d-icon";
 import I18n from "I18n";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
@@ -43,7 +43,7 @@ export default class extends Component {
           class="btn-flat"
         >
           {{#if this.siteSettings.enable_emoji}}
-            <img src={{emojiUrlFor "pencil"}} alt="pencil" class="emoji" />
+            {{emoji "pencil"}}
           {{else}}
             {{icon "sticky-note"}}
           {{/if}}
