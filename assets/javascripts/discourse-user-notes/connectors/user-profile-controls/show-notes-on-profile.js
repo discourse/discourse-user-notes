@@ -1,4 +1,4 @@
-import { getOwner } from "discourse-common/lib/get-owner";
+import { getOwner } from "@ember/owner";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 
 export default {
