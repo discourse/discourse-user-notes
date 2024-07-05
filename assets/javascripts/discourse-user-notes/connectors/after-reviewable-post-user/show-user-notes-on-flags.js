@@ -1,6 +1,6 @@
 import EmberObject from "@ember/object";
+import { getOwner } from "@ember/owner";
 import { emojiUrlFor } from "discourse/lib/text";
-import { getOwner } from "discourse-common/lib/get-owner";
 import I18n from "I18n";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 
