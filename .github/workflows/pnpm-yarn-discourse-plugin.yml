@@ -1,0 +1,348 @@
+name: Discourse Plugin with pnpm and yarn
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        type: string
+        required: false
+      name:
+        type: string
+        required: false
+      core_ref:
+        type: string
+        required: false
+    secrets:
+      ssh_private_key:
+        description: "Optional SSH private key to be used when cloning additional plugin repos"
+        required: false
+
+concurrency:
+  group: discourse-plugin-${{ format('{0}-{1}-{2}', github.head_ref || github.run_number, github.job, inputs.core_ref) }}
+  cancel-in-progress: true
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
+
+      - name: Determine JS package manager
+        id: js-pkg-manager
+        run: |
+          if [ -f yarn.lock ]; then
+            echo "Using Yarn"
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+          else
+            echo "Using pnpm"
+            echo "manager=pnpm" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install package manager
+        run: npm install -g ${{ steps.js-pkg-manager.outputs.manager }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ steps.js-pkg-manager.outputs.manager }}
+
+      - name: Install JS dependencies
+        run:  ${{ steps.js-pkg-manager.outputs.manager }} install --frozen-lockfile
+
+      - name: Set up ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+
+      - name: ESLint
+        if: ${{ !cancelled() }}
+        run: |
+          if test -f .prettierrc.cjs; then
+            ${{ steps.js-pkg-manager.outputs.manager }} eslint --ext .js,.gjs,.js.es6 --no-error-on-unmatched-pattern {test,assets,admin/assets}/javascripts
+          else
+            ${{ steps.js-pkg-manager.outputs.manager }} eslint --ext .js,.js.es6 --no-error-on-unmatched-pattern {test,assets,admin/assets}/javascripts
+          fi
+
+      - name: Prettier
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          ${{ steps.js-pkg-manager.outputs.manager }} prettier -v
+          if [ -n "$(find assets -type f \( -name "*.scss" -or -name "*.js" -or -name "*.gjs" -or -name "*.es6" -or -name "*.hbs" \) 2>/dev/null)" ]; then
+            ${{ steps.js-pkg-manager.outputs.manager }} prettier --list-different "assets/**/*.{scss,js,gjs,es6,hbs}"
+          fi
+          if [ -n "$(find admin/assets -type f \( -name "*.scss" -or -name "*.js" -or -name "*.gjs" -or -name "*.es6" -or -name "*.hbs" \) 2>/dev/null)" ]; then
+            ${{ steps.js-pkg-manager.outputs.manager }} prettier --list-different "admin/assets/**/*.{scss,js,gjs,es6,hbs}"
+          fi
+          if [ 0 -lt $(find test -type f \( -name "*.js" -or -name "*.gjs" -or -name "*.es6" \) 2> /dev/null | wc -l) ]; then
+            ${{ steps.js-pkg-manager.outputs.manager }} prettier --list-different "test/**/*.{js,gjs,es6}"
+          fi
+
+      - name: Ember template lint
+        if: ${{ !cancelled() }}
+        run: ${{ steps.js-pkg-manager.outputs.manager }} ember-template-lint --no-error-on-unmatched-pattern assets/javascripts
+
+      # Separated due to https://github.com/ember-template-lint/ember-template-lint/issues/2758
+      - name: Ember template lint (admin)
+        if: ${{ !cancelled() }}
+        run: ${{ steps.js-pkg-manager.outputs.manager }} ember-template-lint --no-error-on-unmatched-pattern admin/assets/javascripts
+
+      - name: Rubocop
+        if: ${{ !cancelled() }}
+        run: bundle exec rubocop .
+
+      - name: Syntax Tree
+        if: ${{ !cancelled() }}
+        run: |
+          if test -f .streerc; then
+            bundle exec stree check Gemfile $(git ls-files '*.rb') $(git ls-files '*.rake') $(git ls-files '*.thor')
+          else
+            echo "Stree config not detected for this repository. Skipping."
+          fi
+
+  check_for_tests:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.check_tests.outputs.matrix }}
+      has_specs: ${{ steps.check_tests.outputs.has_specs }}
+      has_compatibility_file: ${{ steps.check_tests.outputs.has_compatibility_file }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
+          path: tmp/plugin
+          fetch-depth: 1
+
+      - name: Check For Test Types
+        id: check_tests
+        shell: ruby {0}
+        working-directory: tmp/plugin
+        run: |
+          require 'json'
+
+          matrix = []
+
+          matrix << 'frontend' if Dir.glob("test/javascripts/**/*.{js,es6,gjs}").any?
+          matrix << 'backend'
+          matrix << 'system' if Dir.glob("spec/system/**/*.rb").any?
+
+          puts "Running jobs: #{matrix.inspect}"
+
+          File.write(ENV["GITHUB_OUTPUT"], "has_specs=true\n", mode: 'a+') if Dir.glob("spec/**/*.rb").reject { _1.start_with?("spec/system") }.any?
+          File.write(ENV["GITHUB_OUTPUT"], "has_compatibility_file=true\n", mode: 'a+') if File.exist?(".discourse-compatibility")
+
+          File.write(ENV["GITHUB_OUTPUT"], "matrix=#{matrix.to_json}\n", mode: 'a+')
+
+  tests:
+    name: ${{ matrix.build_type || '' }}_tests
+    runs-on: ubuntu-latest
+    container: discourse/discourse_test:slim${{ (matrix.build_type == 'frontend' || matrix.build_type == 'system') && '-browsers' || '' }}
+    timeout-minutes: 30
+    needs: check_for_tests
+
+    env:
+      DISCOURSE_HOSTNAME: www.example.com
+      RUBY_GLOBAL_METHOD_CACHE_SIZE: 131072
+      RAILS_ENV: test
+      PGUSER: discourse
+      PGPASSWORD: discourse
+      PLUGIN_NAME: ${{ inputs.name || github.event.repository.name }}
+      CHEAP_SOURCE_MAPS: "1"
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        build_type: ${{ fromJSON(needs.check_for_tests.outputs.matrix) }}
+
+    steps:
+      - name: Set working directory owner
+        run: chown root:root .
+
+      - uses: actions/checkout@v4
+        with:
+          repository: discourse/discourse
+          fetch-depth: 1
+          ref: ${{ inputs.core_ref }}
+
+      - name: Install plugin
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository }}
+          path: plugins/${{ env.PLUGIN_NAME }}
+          fetch-depth: 1
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "ci@ci.invalid"
+          git config --global user.name "Discourse CI"
+
+      - name: Clone additional plugins
+        uses: discourse/.github/actions/clone-additional-plugins@v1
+        with:
+          ssh_private_key: ${{ secrets.ssh_private_key }}
+          about_json_path: plugins/${{ env.PLUGIN_NAME }}/about.json
+
+      - name: Start redis
+        run: |
+          redis-server /etc/redis/redis.conf &
+
+      - name: Start Postgres
+        run: |
+          chown -R postgres /var/run/postgresql
+          sudo -E -u postgres script/start_test_db.rb
+          sudo -u postgres psql -c "CREATE ROLE $PGUSER LOGIN SUPERUSER PASSWORD '$PGPASSWORD';"
+
+      - name: Container envs
+        id: container-envs
+        run: |
+          echo "ruby_version=$RUBY_VERSION" >> $GITHUB_OUTPUT
+          echo "debian_release=$DEBIAN_RELEASE" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Bundler cache
+        uses: actions/cache@v4
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-${{ steps.container-envs.outputs.ruby_version }}-${{ steps.container-envs.outputs.debian_release }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ steps.container-envs.outputs.ruby_version }}-${{ steps.container-envs.outputs.debian_release }}-gem-
+
+      - name: Setup gems
+        run: |
+          gem install bundler --conservative -v $(awk '/BUNDLED WITH/ { getline; gsub(/ /,""); print $0 }' Gemfile.lock)
+          bundle config --local path vendor/bundle
+          bundle config --local deployment true
+          bundle config --local without development
+          bundle install --jobs 4
+          bundle clean
+
+      - name: Lint English locale
+        if: matrix.build_type == 'backend'
+        run: bundle exec ruby script/i18n_lint.rb "plugins/${{ env.PLUGIN_NAME }}/locales/{client,server}.en.yml"
+
+      - name: Get yarn cache directory
+        id: yarn-cache-dir
+        run: if [ -f yarn.lock ]; then echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT; fi
+
+      - name: Yarn cache
+        uses: actions/cache@v4
+        id: yarn-cache
+        if: ${{ steps.yarn-cache-dir.outputs.dir }}
+        with:
+          path: ${{ steps.yarn-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install JS Dependencies
+        run: if [ -f yarn.lock ]; then yarn install --frozen-lockfile; else pnpm install --frozen-lockfile; fi
+
+      - name: Fetch app state cache
+        uses: actions/cache@v4
+        id: app-cache
+        with:
+          path: tmp/app-cache
+          key: >-
+            ${{ hashFiles('.github/workflows/tests.yml') }}-
+            ${{ hashFiles('db/**/*', 'plugins/**/db/**/*') }}-
+
+      - name: Restore database from cache
+        if: steps.app-cache.outputs.cache-hit == 'true'
+        run: |
+          if test -f script/silence_successful_output; then
+            script/silence_successful_output psql -f tmp/app-cache/cache.sql postgres
+          else
+            psql -f tmp/app-cache/cache.sql postgres
+          fi
+
+      - name: Restore uploads from cache
+        if: steps.app-cache.outputs.cache-hit == 'true'
+        run: rm -rf public/uploads && cp -r tmp/app-cache/uploads public/uploads
+
+      - name: Create and migrate database
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: |
+          bin/rake db:create
+          if test -f script/silence_successful_output; then
+            script/silence_successful_output bin/rake db:migrate
+          else
+            bin/rake db:migrate
+          fi
+
+      - name: Dump database for cache
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: mkdir -p tmp/app-cache && pg_dumpall > tmp/app-cache/cache.sql
+
+      - name: Dump uploads for cache
+        if: steps.app-cache.outputs.cache-hit != 'true'
+        run: rm -rf tmp/app-cache/uploads && cp -r public/uploads tmp/app-cache/uploads
+
+      - name: Check Zeitwerk eager_load
+        if: matrix.build_type == 'backend'
+        env:
+          LOAD_PLUGINS: 1
+        run: |
+          if ! bin/rails zeitwerk:check --trace; then
+            echo
+            echo "---------------------------------------------"
+            echo
+            echo "::error::'bin/rails zeitwerk:check' failed - the app will fail to boot with 'eager_load=true' (e.g. in production)."
+            echo "To reproduce locally, run 'bin/rails zeitwerk:check'."
+            echo "Alternatively, you can run your local server/tests with the 'DISCOURSE_ZEITWERK_EAGER_LOAD=1' environment variable."
+            echo
+            exit 1
+          fi
+
+      - name: Check Zeitwerk reloading
+        if: matrix.build_type == 'backend'
+        env:
+          LOAD_PLUGINS: 1
+        run: |
+          if ! bin/rails runner 'Rails.application.reloader.reload!'; then
+            echo
+            echo "---------------------------------------------"
+            echo
+            echo "::error::Zeitwerk reload failed - the app will not be able to reload properly in development."
+            echo "To reproduce locally, run \`bin/rails runner 'Rails.application.reloader.reload!'\`."
+            echo
+            exit 1
+          fi
+
+      - name: Validate discourse-compatibility
+        if: matrix.build_type == 'backend' && needs.check_for_tests.outputs.has_compatibility_file && !inputs.core_ref
+        run: bin/rake "compatibility:validate[plugins/${{ env.PLUGIN_NAME }}/.discourse-compatibility]"
+
+      - name: Plugin RSpec
+        if: matrix.build_type == 'backend' && needs.check_for_tests.outputs.has_specs
+        run: bin/rake plugin:spec[${{ env.PLUGIN_NAME }}]
+
+      - name: Plugin QUnit
+        if: matrix.build_type == 'frontend'
+        run: QUNIT_EMBER_CLI=1 bundle exec rake plugin:qunit['${{ env.PLUGIN_NAME }}','1200000']
+        timeout-minutes: 10
+
+      - name: Ember Build for System Tests
+        if: matrix.build_type == 'system'
+        run: bin/ember-cli --build
+
+      - name: Plugin System Tests
+        if: matrix.build_type == 'system'
+        env:
+          LOAD_PLUGINS: 1
+          CAPYBARA_DEFAULT_MAX_WAIT_TIME: 10
+        run: bin/system_rspec plugins/${{ env.PLUGIN_NAME }}/spec/system
+
+      - name: Upload failed system test screenshots
+        uses: actions/upload-artifact@v3
+        if: matrix.build_type == 'system' && failure()
+        with:
+          name: failed-system-test-screenshots
+          path: tmp/capybara/*.png
