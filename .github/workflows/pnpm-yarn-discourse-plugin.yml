@@ -1,6 +1,7 @@
 name: Discourse Plugin with pnpm and yarn
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       repository:
