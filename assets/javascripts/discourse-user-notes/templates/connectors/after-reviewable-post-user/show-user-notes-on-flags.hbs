@@ -1,13 +1,13 @@
-{{#if userNotesCount}}
+{{#if this.userNotesCount}}
   <DButton
-    @translatedTitle={{userNotesTitle}}
+    @translatedTitle={{this.userNotesTitle}}
     @action={{action "showUserNotes"}}
     class="btn btn-flat"
   >
-    {{#if emojiEnabled}}
+    {{#if this.emojiEnabled}}
       <img
-        src={{emojiUrl}}
-        title={{userNotesTitle}}
+        src={{this.emojiUrl}}
+        title={{this.userNotesTitle}}
         alt="pencil"
         class="emoji"
       />
