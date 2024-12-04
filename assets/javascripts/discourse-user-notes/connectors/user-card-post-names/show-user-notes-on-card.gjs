@@ -45,7 +45,7 @@ export default class extends Component {
           {{#if this.siteSettings.enable_emoji}}
             {{emoji "pencil"}}
           {{else}}
-            {{icon "sticky-note"}}
+            {{icon "note-sticky"}}
           {{/if}}
         </DButton>
       {{/if}}
