@@ -95,7 +95,7 @@ export default {
       });
       api.addPostAdminMenuButton((attrs) => {
         return {
-          icon: "pencil-alt",
+          icon: "pencil",
           label: "user_notes.attach",
           action: (post) => {
             showUserNotes(
