@@ -1,7 +1,7 @@
 import EmberObject from "@ember/object";
 import { getOwner } from "@ember/owner";
 import { emojiUrlFor } from "discourse/lib/text";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 
 export default {
@@ -16,7 +16,7 @@ export default {
       userNotesCount,
       emojiEnabled: component.siteSettings.enable_emoji,
       emojiUrl: emojiUrlFor("pencil"),
-      userNotesTitle: I18n.t("user_notes.show", { count: userNotesCount }),
+      userNotesTitle: i18n("user_notes.show", { count: userNotesCount }),
     });
   },
 
