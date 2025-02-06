@@ -1,4 +1,4 @@
-import { getOwnerWithFallback } from "discourse-common/lib/get-owner";
+import { getOwnerWithFallback } from "discourse/lib/get-owner";
 import UserNotesModal from "../../discourse/components/modal/user-notes";
 
 export function showUserNotes(store, userId, callback, opts) {

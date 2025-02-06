@@ -2,9 +2,9 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import DButton from "discourse/components/d-button";
+import icon from "discourse/helpers/d-icon";
 import emoji from "discourse/helpers/emoji";
-import icon from "discourse-common/helpers/d-icon";
-import I18n from "I18n";
+import I18n from "discourse-i18n";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 
 export default class extends Component {

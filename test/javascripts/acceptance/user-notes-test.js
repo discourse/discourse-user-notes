@@ -1,7 +1,7 @@
 import { click, fillIn, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
-import I18n from "I18n";
+import { i18n } from "discourse-i18n";
 
 acceptance("User Notes", function (needs) {
   needs.user();
@@ -44,7 +44,7 @@ acceptance("User Notes", function (needs) {
     const modalClass = ".user-notes-modal";
     assert
       .dom(".user-controls .show-user-notes-btn")
-      .hasText(I18n.t("user_notes.title"));
+      .hasText(i18n("user_notes.title"));
     assert.dom(modalClass).doesNotExist();
 
     await click(".user-controls .show-user-notes-btn");
@@ -60,6 +60,6 @@ acceptance("User Notes", function (needs) {
 
     assert
       .dom(".user-controls .show-user-notes-btn")
-      .hasText(I18n.t("user_notes.show", { count: 1 }));
+      .hasText(i18n("user_notes.show", { count: 1 }));
   });
 });
