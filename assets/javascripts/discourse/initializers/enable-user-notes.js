@@ -38,28 +38,6 @@ export default {
         this.model.set("user_custom_fields", cfs);
       });
 
-      api.modifyClass("controller:user", {
-        pluginId: PLUGIN_ID,
-        userNotesCount: null,
-
-        @on("init")
-        @observes("model")
-        _modelChanged: function () {
-          this.set(
-            "userNotesCount",
-            this.get("model.custom_fields.user_notes_count") || 0
-          );
-        },
-
-        actions: {
-          showUserNotes() {
-            showUserNotes(store, this.model.id, (count) =>
-              this.set("userNotesCount", count)
-            );
-          },
-        },
-      });
-
       const mobileView = api.container.lookup("service:site").mobileView;
       const loc = mobileView ? "before" : "after";
       api.decorateWidget(`poster-name:${loc}`, (dec) => {
