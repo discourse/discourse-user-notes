@@ -1,10 +1,4 @@
-# WARNING: Never edit this file.
-# It will be overwritten when translations are pulled from Crowdin.
-#
-# To work with us on translations, join this project:
-# https://translate.discourse.org/
-
-zh_CN:
+zh-CN:
   site_settings:
     user_notes_enabled: "允许管理人员将备注附加到用户"
     user_notes_moderators_delete: "允许版主删除用户备注"

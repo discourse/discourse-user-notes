@@ -1,10 +1,4 @@
-# WARNING: Never edit this file.
-# It will be overwritten when translations are pulled from Crowdin.
-#
-# To work with us on translations, join this project:
-# https://translate.discourse.org/
-
-tr_TR:
+tr:
   site_settings:
     user_notes_enabled: "Personel kullanıcıların kullanıcılara not eklemesine izin verin"
     user_notes_moderators_delete: "Moderatörlerin kullanıcı notlarını silmesine izin verin"
