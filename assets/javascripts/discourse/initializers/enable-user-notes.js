@@ -1,9 +1,6 @@
-import { observes, on } from "discourse/lib/decorators";
 import { iconNode } from "discourse/lib/icon-library";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
-
-const PLUGIN_ID = "discourse-user-notes";
 
 export default {
   name: "enable-user-notes",
@@ -36,28 +33,6 @@ export default {
         const cfs = this.model.user_custom_fields || {};
         cfs.user_notes_count = count;
         this.model.set("user_custom_fields", cfs);
-      });
-
-      api.modifyClass("controller:user", {
-        pluginId: PLUGIN_ID,
-        userNotesCount: null,
-
-        @on("init")
-        @observes("model")
-        _modelChanged: function () {
-          this.set(
-            "userNotesCount",
-            this.get("model.custom_fields.user_notes_count") || 0
-          );
-        },
-
-        actions: {
-          showUserNotes() {
-            showUserNotes(store, this.model.id, (count) =>
-              this.set("userNotesCount", count)
-            );
-          },
-        },
       });
 
       const mobileView = api.container.lookup("service:site").mobileView;
