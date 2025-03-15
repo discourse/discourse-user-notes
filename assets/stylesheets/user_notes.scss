@@ -7,6 +7,7 @@
     width: 40px;
     float: left;
   }
+
   .note-contents {
     overflow: hidden;
 
@@ -30,6 +31,7 @@
     &:first-of-type {
       margin-top: 1em;
     }
+
     @include breakpoint(mobile, min-width) {
       max-width: 530px;
     }
