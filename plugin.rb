@@ -11,7 +11,7 @@ enabled_site_setting :user_notes_enabled
 
 register_asset "stylesheets/user_notes.scss"
 
-register_svg_icon "note-sticky"
+register_svg_icon "pen-to-square"
 
 after_initialize do
   require_dependency "user"

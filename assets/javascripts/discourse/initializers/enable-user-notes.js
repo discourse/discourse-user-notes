@@ -70,7 +70,7 @@ export default {
       });
       api.addPostAdminMenuButton((attrs) => {
         return {
-          icon: "pencil",
+          icon: "pen-to-square",
           label: "user_notes.attach",
           action: (post) => {
             showUserNotes(
@@ -103,9 +103,9 @@ export default {
 
         html() {
           if (this.siteSettings.enable_emoji) {
-            return this.attach("emoji", { name: "pencil" });
+            return this.attach("emoji", { name: "memo" });
           } else {
-            return iconNode("note-sticky");
+            return iconNode("pen-to-square");
           }
         },
       });

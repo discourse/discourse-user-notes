@@ -15,7 +15,7 @@ export default {
     component.setProperties({
       userNotesCount,
       emojiEnabled: component.siteSettings.enable_emoji,
-      emojiUrl: emojiUrlFor("pencil"),
+      emojiUrl: emojiUrlFor("memo"),
       userNotesTitle: i18n("user_notes.show", { count: userNotesCount }),
     });
   },
