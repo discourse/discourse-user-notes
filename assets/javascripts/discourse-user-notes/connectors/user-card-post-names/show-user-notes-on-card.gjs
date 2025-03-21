@@ -43,9 +43,9 @@ export default class extends Component {
           class="btn-flat"
         >
           {{#if this.siteSettings.enable_emoji}}
-            {{emoji "pencil"}}
+            {{emoji "memo"}}
           {{else}}
-            {{icon "note-sticky"}}
+            {{icon "pen-to-square"}}
           {{/if}}
         </DButton>
       {{/if}}
