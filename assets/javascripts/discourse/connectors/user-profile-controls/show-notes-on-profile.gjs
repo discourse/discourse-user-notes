@@ -1,6 +1,6 @@
 import Component from "@ember/component";
 import { action } from "@ember/object";
-import { getOwner } from "@ember/owner";
+import { service } from "@ember/service";
 import { classNames, tagName } from "@ember-decorators/component";
 import ShowUserNotes from "../../components/show-user-notes";
 import { showUserNotes } from "../../lib/user-notes";
@@ -13,6 +13,8 @@ export default class ShowNotesOnProfile extends Component {
     return siteSettings.user_notes_enabled && currentUser && currentUser.staff;
   }
 
+  @service store;
+
   init() {
     super.init(...arguments);
     const { model } = this;
@@ -24,14 +26,15 @@ export default class ShowNotesOnProfile extends Component {
 
   @action
   showUserNotes() {
-    const store = getOwner(this).lookup("service:store");
-    const user = this.get("args.model");
-    showUserNotes(store, user.id, (count) => this.set("userNotesCount", count));
+    const user = this.model;
+    showUserNotes(this.store, user.id, (count) =>
+      this.set("userNotesCount", count)
+    );
   }
 
   <template>
     <ShowUserNotes
-      @show={{action "showUserNotes"}}
+      @show={{this.showUserNotes}}
       @count={{this.userNotesCount}}
     />
   </template>

@@ -1,6 +1,6 @@
 import Component from "@ember/component";
 import EmberObject, { action } from "@ember/object";
-import { getOwner } from "@ember/owner";
+import { service } from "@ember/service";
 import { classNames, tagName } from "@ember-decorators/component";
 import DButton from "discourse/components/d-button";
 import icon from "discourse/helpers/d-icon";
@@ -14,6 +14,8 @@ export default class ShowUserNotesOnFlags extends Component {
   static shouldRender(args, context) {
     return context.siteSettings.user_notes_enabled && args.user;
   }
+
+  @service store;
 
   init() {
     super.init(...arguments);
@@ -31,16 +33,17 @@ export default class ShowUserNotesOnFlags extends Component {
 
   @action
   showUserNotes() {
-    const store = getOwner(this).lookup("service:store");
-    const user = this.get("args.user");
-    showUserNotes(store, user.id, (count) => this.set("userNotesCount", count));
+    const user = this.user;
+    showUserNotes(this.store, user.id, (count) =>
+      this.set("userNotesCount", count)
+    );
   }
 
   <template>
     {{#if this.userNotesCount}}
       <DButton
         @translatedTitle={{this.userNotesTitle}}
-        @action={{action "showUserNotes"}}
+        @action={{this.showUserNotes}}
         class="btn btn-flat"
       >
         {{#if this.emojiEnabled}}
