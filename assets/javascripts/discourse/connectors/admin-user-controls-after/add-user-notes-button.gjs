@@ -2,8 +2,8 @@ import Component from "@ember/component";
 import { action } from "@ember/object";
 import { getOwner } from "@ember/owner";
 import { classNames, tagName } from "@ember-decorators/component";
-import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
 import ShowUserNotes from "../../components/show-user-notes";
+import { showUserNotes } from "../../lib/user-notes";
 
 @tagName("")
 @classNames("admin-user-controls-after-outlet", "add-user-notes-button")
