@@ -1,0 +1,38 @@
+import Component from "@ember/component";
+import { action } from "@ember/object";
+import { getOwner } from "@ember/owner";
+import { classNames, tagName } from "@ember-decorators/component";
+import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
+import ShowUserNotes from "../../components/show-user-notes";
+
+@tagName("")
+@classNames("admin-user-controls-after-outlet", "add-user-notes-button")
+export default class AddUserNotesButton extends Component {
+  static shouldRender(args, context) {
+    const { siteSettings, currentUser } = context;
+    return siteSettings.user_notes_enabled && currentUser && currentUser.staff;
+  }
+
+  init() {
+    super.init(...arguments);
+    const { model } = this;
+    this.set(
+      "userNotesCount",
+      model.user_notes_count || model.get("custom_fields.user_notes_count") || 0
+    );
+  }
+
+  @action
+  showUserNotes() {
+    const store = getOwner(this).lookup("service:store");
+    const user = this.get("args.model");
+    showUserNotes(store, user.id, (count) => this.set("userNotesCount", count));
+  }
+
+  <template>
+    <ShowUserNotes
+      @show={{action "showUserNotes"}}
+      @count={{this.userNotesCount}}
+    />
+  </template>
+}
