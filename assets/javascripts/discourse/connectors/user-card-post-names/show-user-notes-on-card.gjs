@@ -5,7 +5,7 @@ import DButton from "discourse/components/d-button";
 import icon from "discourse/helpers/d-icon";
 import emoji from "discourse/helpers/emoji";
 import I18n from "discourse-i18n";
-import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
+import { showUserNotes } from "../../lib/user-notes";
 
 export default class extends Component {
   static shouldRender(args, context) {
