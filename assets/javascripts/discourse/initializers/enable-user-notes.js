@@ -1,6 +1,6 @@
 import { iconNode } from "discourse/lib/icon-library";
 import { withPluginApi } from "discourse/lib/plugin-api";
-import { showUserNotes } from "discourse/plugins/discourse-user-notes/discourse-user-notes/lib/user-notes";
+import { showUserNotes } from "../lib/user-notes";
 
 export default {
   name: "enable-user-notes",
