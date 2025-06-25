@@ -4,7 +4,7 @@ import { action } from "@ember/object";
 import { service } from "@ember/service";
 import icon from "discourse/helpers/d-icon";
 import emoji from "discourse/helpers/emoji";
-import { showUserNotes } from "../lib/user-notes";
+import { showUserNotes, updatePostUserNotesCount } from "../lib/user-notes";
 
 export default class PostMetadataUserNotes extends Component {
   @service siteSettings;
@@ -15,11 +15,7 @@ export default class PostMetadataUserNotes extends Component {
     showUserNotes(
       this.store,
       this.args.post.user_id,
-      (count) => {
-        const cfs = this.args.post.user_custom_fields || {};
-        cfs.user_notes_count = count;
-        this.args.post.user_custom_fields = cfs;
-      },
+      (count) => updatePostUserNotesCount(this.args.post, count),
       {
         postId: this.args.post.id,
       }

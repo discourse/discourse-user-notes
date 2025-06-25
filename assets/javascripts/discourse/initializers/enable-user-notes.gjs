@@ -4,8 +4,11 @@ import { iconNode } from "discourse/lib/icon-library";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { applyValueTransformer } from "discourse/lib/transformer";
 import PostMetadataUserNotes from "../components/post-metadata-user-notes";
-import { showUserNotes } from "../lib/user-notes";
+import { showUserNotes, updatePostUserNotesCount } from "../lib/user-notes";
 
+/**
+ * Plugin initializer for enabling user notes functionality
+ */
 export default {
   name: "enable-user-notes",
   initialize(container) {
@@ -23,52 +26,59 @@ export default {
   },
 };
 
+/**
+ * Customizes how user notes are displayed in posts
+ *
+ * @param {Object} api - Plugin API instance
+ * @param {Object} container - Container instance
+ */
 function customizePost(api, container) {
   const siteSettings = container.lookup("service:site-settings");
 
-  const iconPlacement = applyValueTransformer(
+  const placement = applyValueTransformer(
     "user-notes-icon-placement",
     siteSettings.user_notes_icon_placement
   );
 
-  if (iconPlacement === "name") {
-    api.renderBeforeWrapperOutlet(
-      "post-meta-data-poster-name",
-      class extends Component {
-        static shouldRender(args, context) {
-          return (
-            context.site.mobileView &&
-            args.post?.user_custom_fields?.user_notes_count > 0
-          );
-        }
+  // Component to display user notes flair icon
+  class UserNotesPostMetadataFlairIcon extends Component {
+    static shouldRender(args) {
+      return args.post?.user_custom_fields?.user_notes_count > 0;
+    }
 
-        <template><PostMetadataUserNotes @post={{@post}} /></template>
-      }
-    );
+    <template><PostMetadataUserNotes @post={{@post}} /></template>
+  }
 
-    api.renderAfterWrapperOutlet(
-      "post-meta-data-poster-name",
-      class extends Component {
-        static shouldRender(args, context) {
-          return (
-            !context.site.mobileView &&
-            args.post?.user_custom_fields?.user_notes_count > 0
-          );
-        }
-
-        <template><PostMetadataUserNotes @post={{@post}} /></template>
-      }
-    );
-  } else if (iconPlacement === "avatar") {
+  // Handle placement next to avatar
+  if (placement === "avatar") {
     api.renderAfterWrapperOutlet(
       "poster-avatar",
-      class extends Component {
-        static shouldRender(args) {
-          return args.post?.user_custom_fields?.user_notes_count > 0;
-        }
-
-        <template><PostMetadataUserNotes @post={{@post}} /></template>
+      UserNotesPostMetadataFlairIcon
+    );
+  }
+  // Handle placement next to username
+  else if (placement === "name") {
+    // Mobile-specific version
+    class MobileUserNotesIcon extends UserNotesPostMetadataFlairIcon {
+      static shouldRender(args, context) {
+        return context.site.mobileView && super.shouldRender(args);
       }
+    }
+
+    // Desktop-specific version
+    class DesktopUserNotesIcon extends UserNotesPostMetadataFlairIcon {
+      static shouldRender(args, context) {
+        return !context.site.mobileView && super.shouldRender(args);
+      }
+    }
+
+    api.renderBeforeWrapperOutlet(
+      "post-meta-data-poster-name",
+      MobileUserNotesIcon
+    );
+    api.renderAfterWrapperOutlet(
+      "post-meta-data-poster-name",
+      DesktopUserNotesIcon
     );
   }
 
@@ -77,7 +87,13 @@ function customizePost(api, container) {
   );
 }
 
+/**
+ * Customizes the post widget to display user notes
+ *
+ * @param {Object} api - Plugin API instance
+ */
 function customizeWidgetPost(api) {
+  // Handler for showing user notes modal
   function widgetShowUserNotes() {
     showUserNotes(
       this.store,
@@ -91,49 +107,43 @@ function customizeWidgetPost(api) {
     );
   }
 
+  // Update post when notes are changed
   api.attachWidgetAction("post", "refreshUserNotes", function (count) {
-    const cfs = this.model.user_custom_fields || {};
-    cfs.user_notes_count = count;
-    this.model.set("user_custom_fields", cfs);
+    updatePostUserNotesCount(this.model, count);
   });
 
   const mobileView = api.container.lookup("service:site").mobileView;
   const loc = mobileView ? "before" : "after";
 
+  // Helper to attach notes icon if user has notes
+  const attachUserNotesIconIfPresent = (dec) => {
+    const post = dec.getModel();
+    if (post?.user_custom_fields?.user_notes_count > 0) {
+      return dec.attach("user-notes-icon");
+    }
+  };
+
+  // Add notes icon to poster name
   api.decorateWidget(`poster-name:${loc}`, (dec) => {
     if (dec.widget.settings.hideNotes) {
       return;
     }
 
-    const post = dec.getModel();
-    if (!post) {
-      return;
-    }
-
-    const ucf = post.user_custom_fields || {};
-    if (ucf.user_notes_count > 0) {
-      return dec.attach("user-notes-icon");
-    }
+    return attachUserNotesIconIfPresent(dec);
   });
 
+  // Add notes icon after avatar
   api.decorateWidget(`post-avatar:after`, (dec) => {
     if (!dec.widget.settings.showNotes) {
       return;
     }
 
-    const post = dec.getModel();
-    if (!post) {
-      return;
-    }
-
-    const ucf = post.user_custom_fields || {};
-    if (ucf.user_notes_count > 0) {
-      return dec.attach("user-notes-icon");
-    }
+    return attachUserNotesIconIfPresent(dec);
   });
 
   api.attachWidgetAction("post", "showUserNotes", widgetShowUserNotes);
 
+  // Create the user notes icon widget
   api.createWidget("user-notes-icon", {
     services: ["site-settings"],
 
@@ -150,6 +160,12 @@ function customizeWidgetPost(api) {
   });
 }
 
+/**
+ * Adds user notes button to post admin menu
+ *
+ * @param {Object} api - Plugin API instance
+ * @param {Object} container - Container instance
+ */
 function customizePostMenu(api, container) {
   const appEvents = container.lookup("service:app-events");
   const store = container.lookup("service:store");
@@ -163,10 +179,7 @@ function customizePostMenu(api, container) {
           store,
           attrs.user_id,
           (count) => {
-            const ucf = post.user_custom_fields || {};
-            ucf.user_notes_count = count;
-            post.set("user_custom_fields", ucf);
-
+            updatePostUserNotesCount(post, count);
             appEvents.trigger("post-stream:refresh", {
               id: post.id,
             });
