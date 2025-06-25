@@ -16,3 +16,9 @@ export function showUserNotes(store, userId, callback, opts) {
     });
   });
 }
+
+export function updatePostUserNotesCount(post, count) {
+  const cfs = post.user_custom_fields || {};
+  cfs.user_notes_count = count;
+  post.user_custom_fields = cfs;
+}
