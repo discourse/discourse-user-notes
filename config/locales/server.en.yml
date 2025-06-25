@@ -1,6 +1,7 @@
 en:
   site_settings:
     user_notes_enabled: "Allow staff users to attach notes to users"
+    user_notes_icon_placement: "Placement of the user notes indicative icon in the posts"
     user_notes_moderators_delete: "Allow moderators to delete user notes"
 
   user_notes:

@@ -4,7 +4,7 @@ export default {
   before: "freeze-valid-transformers",
 
   initialize() {
-    withPluginApi("1.33.0", (api) => {
+    withPluginApi((api) => {
       api.addValueTransformerName("user-notes-icon-placement");
     });
   },

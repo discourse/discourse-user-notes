@@ -36,7 +36,10 @@ function customizePost(api, container) {
       "post-meta-data-poster-name",
       class extends Component {
         static shouldRender(args, context) {
-          return context.site.mobileView;
+          return (
+            context.site.mobileView &&
+            args.post?.user_custom_fields?.user_notes_count > 0
+          );
         }
 
         <template><PostMetadataUserNotes @post={{@post}} /></template>
@@ -47,14 +50,26 @@ function customizePost(api, container) {
       "post-meta-data-poster-name",
       class extends Component {
         static shouldRender(args, context) {
-          return !context.site.mobileView;
+          return (
+            !context.site.mobileView &&
+            args.post?.user_custom_fields?.user_notes_count > 0
+          );
         }
 
         <template><PostMetadataUserNotes @post={{@post}} /></template>
       }
     );
   } else if (iconPlacement === "avatar") {
-    api.renderAfterWrapperOutlet("poster-avatar", PostMetadataUserNotes);
+    api.renderAfterWrapperOutlet(
+      "poster-avatar",
+      class extends Component {
+        static shouldRender(args) {
+          return args.post?.user_custom_fields?.user_notes_count > 0;
+        }
+
+        <template><PostMetadataUserNotes @post={{@post}} /></template>
+      }
+    );
   }
 
   withSilencedDeprecations("discourse.post-stream-widget-overrides", () =>
