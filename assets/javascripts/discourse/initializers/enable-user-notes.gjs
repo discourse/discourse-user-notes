@@ -1,4 +1,6 @@
 import Component from "@glimmer/component";
+import { ajax } from "discourse/lib/ajax";
+import { popupAjaxError } from "discourse/lib/ajax-error";
 import { withSilencedDeprecations } from "discourse/lib/deprecated";
 import { iconNode } from "discourse/lib/icon-library";
 import { withPluginApi } from "discourse/lib/plugin-api";
@@ -22,6 +24,7 @@ export default {
     withPluginApi((api) => {
       customizePost(api, container);
       customizePostMenu(api, container);
+      handleReviewableNoteCreation(api);
     });
   },
 };
@@ -191,4 +194,36 @@ function customizePostMenu(api, container) {
       className: "add-user-note",
     };
   });
+}
+
+/**
+ * Optionally creates a user note when a reviewable note is created.
+ *
+ * @param {Object} api - Plugin API instance
+ */
+function handleReviewableNoteCreation(api) {
+  api.onAppEvent(
+    "reviewablenote:created",
+    async (data, reviewable, formApi) => {
+      if (!data.copy_note_to_user || !reviewable.target_created_by) {
+        return;
+      }
+
+      try {
+        await ajax("/user_notes", {
+          type: "POST",
+          data: {
+            user_note: {
+              user_id: reviewable.target_created_by.id,
+              raw: data.content.trim(),
+            },
+          },
+        });
+
+        formApi.set("copy_note_to_user", false);
+      } catch (error) {
+        popupAjaxError(error);
+      }
+    }
+  );
 }
