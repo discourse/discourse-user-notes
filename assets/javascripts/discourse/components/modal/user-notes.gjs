@@ -1,12 +1,12 @@
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
-import { Textarea } from "@ember/component";
 import { fn } from "@ember/helper";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import CookText from "discourse/components/cook-text";
 import DButton from "discourse/components/d-button";
 import DModal from "discourse/components/d-modal";
+import Form from "discourse/components/form";
 import UserLink from "discourse/components/user-link";
 import ageWithTooltip from "discourse/helpers/age-with-tooltip";
 import avatar from "discourse/helpers/avatar";
@@ -17,9 +17,7 @@ export default class UserNotesModal extends Component {
   @service dialog;
   @service store;
 
-  @tracked newNote;
   @tracked userId = this.args.model.userId;
-  @tracked saving = false;
   postId = this.args.model.postId;
   callback = this.args.model.callback;
 
@@ -29,19 +27,28 @@ export default class UserNotesModal extends Component {
     }
   }
 
-  get attachDisabled() {
-    return this.saving || !this.newNote || this.newNote.length === 0;
+  /**
+   * Registers the Form API reference.
+   *
+   * @param {Object} api - The Form API object, with form helper methods.
+   */
+  @action
+  registerApi(api) {
+    this.formApi = api;
   }
 
+  /**
+   * Handles form submission from Form component.
+   *
+   * @param {Object} data - Form data from Form component
+   */
   @action
-  async attachNote() {
+  async onSubmit(data) {
     const note = this.store.createRecord("user-note");
     const userId = parseInt(this.userId, 10);
 
-    this.saving = true;
-
     const args = {
-      raw: this.newNote,
+      raw: data.content,
       user_id: userId,
     };
 
@@ -51,13 +58,11 @@ export default class UserNotesModal extends Component {
 
     try {
       await note.save(args);
-      this.newNote = "";
+      await this.formApi.set("content", "");
       this.args.model.note.insertAt(0, note);
       this.#refreshCount();
     } catch (error) {
       popupAjaxError(error);
-    } finally {
-      this.saving = false;
     }
   }
 
@@ -83,13 +88,25 @@ export default class UserNotesModal extends Component {
       @title={{i18n "user_notes.title"}}
       class="user-notes-modal"
     >
-      <Textarea @value={{this.newNote}} />
-      <DButton
-        @action={{this.attachNote}}
-        @label="user_notes.attach"
-        @disabled={{this.attachDisabled}}
-        class="btn-primary"
-      />
+      <Form
+        @onSubmit={{this.onSubmit}}
+        @onRegisterApi={{this.registerApi}}
+        as |form|
+      >
+        <form.Field
+          @name="content"
+          @title={{i18n "user_notes.attach_note_description"}}
+          @format="full"
+          @validation="required:trim"
+          as |field|
+        >
+          <field.Textarea />
+        </form.Field>
+
+        <form.Actions>
+          <form.Submit @label="user_notes.attach" class="btn-primary" />
+        </form.Actions>
+      </Form>
 
       {{#each @model.note as |n|}}
         <div class="user-note">
