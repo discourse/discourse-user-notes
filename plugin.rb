@@ -109,47 +109,6 @@ after_initialize do
     )
   end
 
-  add_model_callback(UserHistory, :after_commit, on: :create) do
-    return unless self.action == UserHistory.actions[:suspend_user]
-    target_user = User.find_by_id(self.target_user_id)
-    created_by_user = User.find_by_id(self.acting_user_id)
-    raw_note =
-      I18n.with_locale(SiteSetting.default_locale) do
-        I18n.t(
-          "user_notes.user_suspended",
-          username: created_by_user.username,
-          suspended_till: I18n.l(target_user.suspended_till, format: :date_only),
-          reason: self.details,
-        )
-      end
-    ::DiscourseUserNotes.add_note(
-      target_user,
-      raw_note,
-      Discourse::SYSTEM_USER_ID,
-      post_id: self.post_id,
-      topic_id: self.topic_id,
-    )
-  end
-
-  on(:user_silenced) do |details|
-    raw_note =
-      I18n.with_locale(SiteSetting.default_locale) do
-        I18n.t(
-          "user_notes.user_silenced",
-          username: details[:silenced_by]&.username || "",
-          silenced_till: I18n.l(details[:silenced_till], format: :date_only),
-          reason: details[:reason],
-        )
-      end
-
-    note_args = {}
-    if post = Post.with_deleted.where(id: details[:post_id]).first
-      note_args = { post_id: post.id, topic_id: post.topic_id }
-    end
-
-    ::DiscourseUserNotes.add_note(details[:user], raw_note, Discourse::SYSTEM_USER_ID, note_args)
-  end
-
   add_report("user_notes") do |report|
     report.modes = [:table]
 
